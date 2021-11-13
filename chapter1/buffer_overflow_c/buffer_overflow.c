@@ -41,10 +41,5 @@ int main(int argc, char *argv[])
               printf("Correct password entered, secret information accessed!");
        }
 
-       //strcpy(buffer, argv[1]);
-       //printf("buffer content= %s\n", buffer);
-
-       // you may want to try strcpy_s()
-
        return 0;
 }
