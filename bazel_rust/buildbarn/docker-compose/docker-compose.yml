@@ -1,0 +1,94 @@
+version: '3'
+services:
+  frontend:
+    image: buildbarn/bb-storage:20201219T141331Z-3d6325d
+    command:
+    - /config/frontend.jsonnet
+    expose:
+    - 9980
+    ports:
+    - 7980:7980
+    - 8980:8980
+    volumes:
+    - ./config:/config
+
+  storage-0:
+    image: buildbarn/bb-storage:20201219T141331Z-3d6325d
+    command:
+    - /config/storage.jsonnet
+    expose:
+    - 8981
+    - 9980
+    ports:
+    - 7981:7981
+    volumes:
+    - ./config:/config
+    - ./storage-ac-0:/storage-ac
+    - ./storage-cas-0:/storage-cas
+
+  storage-1:
+    image: buildbarn/bb-storage:20201219T141331Z-3d6325d
+    command:
+    - /config/storage.jsonnet
+    expose:
+    - 8981
+    - 9980
+    ports:
+    - 17981:7981
+    volumes:
+    - ./config:/config
+    - ./storage-ac-1:/storage-ac
+    - ./storage-cas-1:/storage-cas
+
+  scheduler:
+    image: buildbarn/bb-scheduler:20201218T103144Z-6f7de1f
+    command:
+    - /config/scheduler.jsonnet
+    expose:
+    - 8982
+    - 8983
+    - 9980
+    ports:
+    - 7982:7982
+    volumes:
+    - ./config:/config
+
+  browser:
+    image: buildbarn/bb-browser:20201221T062016Z-d21170a
+    command:
+    - /config/browser.jsonnet
+    expose:
+    - 9980
+    ports:
+    - 7984:7984
+    volumes:
+    - ./config:/config
+
+  worker-ubuntu16-04:
+    image: buildbarn/bb-worker:20201218T103144Z-6f7de1f
+    command:
+    - /config/worker-ubuntu16-04.jsonnet
+    ports:
+    - 7986:7986
+    volumes:
+    - ./config:/config
+    - ./worker-ubuntu16-04:/worker
+
+  runner-ubuntu16-04:
+    image: l.gcr.io/google/rbe-ubuntu16-04@sha256:b516a2d69537cb40a7c6a7d92d0008abb29fba8725243772bdaf2c83f1be2272
+    command:
+    - sh
+    - -c
+    - while ! test -f /bb/installed; do sleep 1; done; exec /bb/tini -v -g -- /bb/bb_runner /config/runner-ubuntu16-04.jsonnet
+    network_mode: none
+    volumes:
+    - ./worker-ubuntu16-04:/worker
+    - ./config:/config
+    - ./bb:/bb
+    depends_on:
+    - runner-installer
+
+  runner-installer:
+    image: buildbarn/bb-runner-installer:20201218T103144Z-6f7de1f
+    volumes:
+    - ./bb:/bb
