@@ -13,7 +13,7 @@ pub struct ServerConfig {
 }
 
 pub fn get_config() -> Option<ServerConfig> {
-    let config = File::open("microservice.toml")
+    let config = File::open("settings.toml")
         .and_then(|mut file| {
             let mut buffer = String::new();
             file.read_to_string(&mut buffer)?;
@@ -27,8 +27,6 @@ pub fn get_config() -> Option<ServerConfig> {
             warn!("Can't read config file: {}", err);
         })
         .ok();
-
-    //let config = File::open("microservice.toml");
 
     config
 }
