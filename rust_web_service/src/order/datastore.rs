@@ -44,11 +44,16 @@ pub fn create_order(product_name: String, amount: i32) -> Result<(), Error> {
 pub fn show_table() -> Result<(), Error> {
     let mut client = Client::connect("postgresql://psql_user:password@localhost/orders", NoTls)?;
 
-    for row in client.query("SELECT id, product_name, amount FROM orders", &[])? {
+    for row in client.query(
+        "SELECT id, product_name, address, fulfilled, amount FROM orders",
+        &[],
+    )? {
         let author = Order {
             _id: row.get(0),
             product_name: row.get(1),
             amount: row.get(2),
+            address: row.get(3),
+            fulfilled: row.get(4),
         };
         println!("Order {} is from {}", author.product_name, author.amount);
     }

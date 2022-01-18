@@ -1,12 +1,27 @@
+use futures::stream::StreamExt;
 use futures_util::TryStreamExt;
 use hyper::service::{make_service_fn, service_fn};
-use hyper::{Body, Method, Request, Response, Server, StatusCode};
+use hyper::{Body, Error, Method, Request, Response, Server, StatusCode};
+use std::{convert::Infallible, net::SocketAddr};
+
+use crate::order::Order;
+
+use bytes::BytesMut;
 use std::env;
 use std::fmt;
 use std::fs::File;
 use std::io::{self, Read};
-use std::net::SocketAddr;
+use std::str;
 use std::sync::{Arc, Mutex};
+
+use serde::de;
+use serde_json;
+
+use hyper::body::HttpBody;
+
+fn deserialize(data: Vec<u8>) -> Result<Order, serde_json::Error> {
+    serde_json::from_slice(&data)
+}
 
 /// This is our service handler. It receives a Request, routes on its
 /// path, and returns a Future of a Response.
@@ -19,7 +34,22 @@ pub async fn service_handler(req: Request<Body>) -> Result<Response<Body>, hyper
 
         // Simply echo the body back to the client.
         (&Method::POST, "/order") => {
-            let body = req.body();
+            //let body = req.body_mut();
+
+            let mut data = Vec::with_capacity(15);
+            while let Some(chunk) = req.body().next().await {
+                data.extend(&chunk?);
+            }
+            let parsed: Order = deserialize(data).unwrap();
+
+            // let buffer = {
+            //     let body = req.body();
+            //     let mut buf = BytesMut::with_capacity(body.size_hint().lower() as usize);
+            //     while let Some(chunk) = body.data().await {
+            //         buf.extend_from_slice(&chunk?);
+            //     }
+            //     buf.freeze()
+            // };
 
             Ok(Response::new(req.into_body()))
         }
@@ -45,7 +75,9 @@ pub async fn service_handler(req: Request<Body>) -> Result<Response<Body>, hyper
             let whole_body = hyper::body::to_bytes(req.into_body()).await?;
 
             let reversed_body = whole_body.iter().rev().cloned().collect::<Vec<u8>>();
-            Ok(Response::new(Body::from(reversed_body)))
+
+            let body = Body::from(reversed_body);
+            Ok(Response::new(body))
         }
 
         // Return the 404 Not Found for other routes.

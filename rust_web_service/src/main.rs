@@ -8,6 +8,9 @@ use std::io::{self, Read};
 use std::net::SocketAddr;
 use std::sync::{Arc, Mutex};
 
+use routerify::prelude::*;
+use routerify::{Middleware, RequestInfo, Router, RouterService};
+
 mod config;
 mod order;
 mod web_server;
@@ -21,6 +24,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         .map(|config| config.address)
         .or_else(|| Some(([127, 0, 0, 1], 8080).into()))
         .unwrap();
+
+    //let router = web_server::handlers::router();
+
+    // Create a Service from the router above to handle incoming requests.
+    //let service = RouterService::new(router).unwrap();
 
     let service = make_service_fn(|_| async {
         Ok::<_, hyper::Error>(service_fn(web_server::handlers::service_handler))
