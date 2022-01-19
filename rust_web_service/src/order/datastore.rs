@@ -45,15 +45,16 @@ pub fn show_table() -> Result<(), Error> {
     let mut client = Client::connect("postgresql://psql_user:password@localhost/orders", NoTls)?;
 
     for row in client.query(
-        "SELECT id, product_name, address, fulfilled, amount FROM orders",
+        "SELECT id, product_name, product_id, address, fulfilled, amount FROM orders",
         &[],
     )? {
         let author = Order {
-            _id: row.get(0),
+            id: row.get(0),
             product_name: row.get(1),
-            amount: row.get(2),
-            address: row.get(3),
-            fulfilled: row.get(4),
+            product_id: row.get(2),
+            amount: row.get(3),
+            address: row.get(4),
+            fulfilled: row.get(5),
         };
         println!("Order {} is from {}", author.product_name, author.amount);
     }

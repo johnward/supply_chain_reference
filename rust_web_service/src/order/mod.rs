@@ -1,16 +1,22 @@
-use serde_derive::Deserialize;
+use serde_derive::{Deserialize, Serialize};
 mod datastore;
 
-#[derive(Deserialize, Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Order {
-    _id: i32,
+    id: i32,
     product_name: String,
+    product_id: i32,
     amount: i32,
     address: String,
     fulfilled: String,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Debug, Serialize, Deserialize)]
+pub struct OrderDetail {
+    id: i32,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct LineItem {
     id: u32,
     sku: String,

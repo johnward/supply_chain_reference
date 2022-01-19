@@ -1,18 +1,8 @@
-use actix_web::{error, get, post, web, App, Error, HttpResponse, HttpServer, Responder};
+use actix_web::{error, get, post, web, Error, HttpResponse, Responder};
 use futures::StreamExt;
-use futures_util::TryStreamExt;
-use std::{convert::Infallible, net::SocketAddr};
 
-use crate::order::Order;
-
-use std::env;
-use std::fmt;
-use std::fs::File;
-use std::io::{self, Read};
 use std::str;
-use std::sync::{Arc, Mutex};
 
-use serde::de;
 use serde::{Deserialize, Serialize};
 use serde_json;
 
@@ -21,8 +11,6 @@ struct MyObj {
     name: String,
     number: i32,
 }
-
-const MAX_SIZE: usize = 262_144; // max payload size is 256k
 
 #[get("/")]
 pub async fn hello() -> impl Responder {
@@ -38,13 +26,14 @@ pub async fn manual_hello() -> impl Responder {
     HttpResponse::Ok().body("Hey there!")
 }
 
+// Order endpoint
 pub async fn index_manual(mut payload: web::Payload) -> Result<HttpResponse, Error> {
     // payload is a stream of Bytes objects
     let mut body = web::BytesMut::new();
     while let Some(chunk) = payload.next().await {
         let chunk = chunk?;
         // limit max size of in-memory payload
-        if (body.len() + chunk.len()) > MAX_SIZE {
+        if (body.len() + chunk.len()) > crate::web_server::MAX_SIZE {
             return Err(error::ErrorBadRequest("overflow"));
         }
         body.extend_from_slice(&chunk);
@@ -52,5 +41,6 @@ pub async fn index_manual(mut payload: web::Payload) -> Result<HttpResponse, Err
 
     // body is loaded, now we can deserialize serde-json
     let obj = serde_json::from_slice::<MyObj>(&body)?;
+    println!("Success");
     Ok(HttpResponse::Ok().json(obj)) // <- send response
 }
