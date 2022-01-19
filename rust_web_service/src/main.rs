@@ -1,6 +1,7 @@
+use actix_web::{error, get, post, web, App, Error, HttpResponse, HttpServer, Responder};
+use futures::StreamExt;
 use futures_util::TryStreamExt;
-use hyper::service::{make_service_fn, service_fn};
-use hyper::{Body, Method, Request, Response, Server, StatusCode};
+
 use std::env;
 use std::fmt;
 use std::fs::File;
@@ -8,37 +9,52 @@ use std::io::{self, Read};
 use std::net::SocketAddr;
 use std::sync::{Arc, Mutex};
 
-use routerify::prelude::*;
-use routerify::{Middleware, RequestInfo, Router, RouterService};
-
 mod config;
 mod order;
 mod web_server;
 
-#[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-    let config = config::get_config();
+use serde::de;
+use serde::{Deserialize, Serialize};
+use serde_json;
 
-    //get the address with the config from the config file, or default local host
-    let addr = config
-        .map(|config| config.address)
-        .or_else(|| Some(([127, 0, 0, 1], 8080).into()))
-        .unwrap();
+const MAX_SIZE: usize = 262_144; // max payload size is 256k
 
-    //let router = web_server::handlers::router();
+#[derive(Debug, Serialize, Deserialize)]
+struct MyObj2 {
+    name: String,
+    number: i32,
+}
 
-    // Create a Service from the router above to handle incoming requests.
-    //let service = RouterService::new(router).unwrap();
+/// This handler manually load request payload and parse json object
+async fn index_manual(mut payload: web::Payload) -> Result<HttpResponse, Error> {
+    // payload is a stream of Bytes objects
+    let mut body = web::BytesMut::new();
+    while let Some(chunk) = payload.next().await {
+        let chunk = chunk?;
+        // limit max size of in-memory payload
+        if (body.len() + chunk.len()) > MAX_SIZE {
+            return Err(error::ErrorBadRequest("overflow"));
+        }
+        body.extend_from_slice(&chunk);
+    }
 
-    let service = make_service_fn(|_| async {
-        Ok::<_, hyper::Error>(service_fn(web_server::handlers::service_handler))
-    });
+    // body is loaded, now we can deserialize serde-json
+    let obj = serde_json::from_slice::<MyObj2>(&body)?;
+    Ok(HttpResponse::Ok().json(obj)) // <- send response
+}
 
-    let server = Server::bind(&addr).serve(service);
-
-    println!("Listening on http://{}", addr);
-
-    server.await?;
-
-    Ok(())
+#[actix_web::main]
+async fn main() -> std::io::Result<()> {
+    HttpServer::new(|| {
+        App::new()
+            .service(web_server::handlers::hello)
+            .service(web_server::handlers::echo)
+            .service(
+                web::resource("/manual").route(web::post().to(web_server::handlers::index_manual)),
+            )
+            .route("/hey", web::get().to(web_server::handlers::manual_hello))
+    })
+    .bind("127.0.0.1:8080")?
+    .run()
+    .await
 }

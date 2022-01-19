@@ -1,12 +1,10 @@
-use futures::stream::StreamExt;
+use actix_web::{error, get, post, web, App, Error, HttpResponse, HttpServer, Responder};
+use futures::StreamExt;
 use futures_util::TryStreamExt;
-use hyper::service::{make_service_fn, service_fn};
-use hyper::{Body, Error, Method, Request, Response, Server, StatusCode};
 use std::{convert::Infallible, net::SocketAddr};
 
 use crate::order::Order;
 
-use bytes::BytesMut;
 use std::env;
 use std::fmt;
 use std::fs::File;
@@ -15,76 +13,44 @@ use std::str;
 use std::sync::{Arc, Mutex};
 
 use serde::de;
+use serde::{Deserialize, Serialize};
 use serde_json;
 
-use hyper::body::HttpBody;
-
-fn deserialize(data: Vec<u8>) -> Result<Order, serde_json::Error> {
-    serde_json::from_slice(&data)
+#[derive(Serialize, Deserialize)]
+struct MyObj {
+    name: String,
+    number: i32,
 }
 
-/// This is our service handler. It receives a Request, routes on its
-/// path, and returns a Future of a Response.
-pub async fn service_handler(req: Request<Body>) -> Result<Response<Body>, hyper::Error> {
-    match (req.method(), req.uri().path()) {
-        // Serve some instructions at /
-        (&Method::GET, "/") => Ok(Response::new(Body::from(
-            "Try POSTing data to /echo such as: `curl localhost:3000/echo -XPOST -d 'hello world'`",
-        ))),
+const MAX_SIZE: usize = 262_144; // max payload size is 256k
 
-        // Simply echo the body back to the client.
-        (&Method::POST, "/order") => {
-            //let body = req.body_mut();
+#[get("/")]
+pub async fn hello() -> impl Responder {
+    HttpResponse::Ok().body("Hello world!")
+}
 
-            let mut data = Vec::with_capacity(15);
-            while let Some(chunk) = req.body().next().await {
-                data.extend(&chunk?);
-            }
-            let parsed: Order = deserialize(data).unwrap();
+#[post("/echo")]
+pub async fn echo(req_body: String) -> impl Responder {
+    HttpResponse::Ok().body(req_body)
+}
 
-            // let buffer = {
-            //     let body = req.body();
-            //     let mut buf = BytesMut::with_capacity(body.size_hint().lower() as usize);
-            //     while let Some(chunk) = body.data().await {
-            //         buf.extend_from_slice(&chunk?);
-            //     }
-            //     buf.freeze()
-            // };
+pub async fn manual_hello() -> impl Responder {
+    HttpResponse::Ok().body("Hey there!")
+}
 
-            Ok(Response::new(req.into_body()))
+pub async fn index_manual(mut payload: web::Payload) -> Result<HttpResponse, Error> {
+    // payload is a stream of Bytes objects
+    let mut body = web::BytesMut::new();
+    while let Some(chunk) = payload.next().await {
+        let chunk = chunk?;
+        // limit max size of in-memory payload
+        if (body.len() + chunk.len()) > MAX_SIZE {
+            return Err(error::ErrorBadRequest("overflow"));
         }
-
-        // Convert to uppercase before sending back to client using a stream.
-        (&Method::POST, "/echo/uppercase") => {
-            let chunk_stream = req.into_body().map_ok(|chunk| {
-                chunk
-                    .iter()
-                    .map(|byte| byte.to_ascii_uppercase())
-                    .collect::<Vec<u8>>()
-            });
-            Ok(Response::new(Body::wrap_stream(chunk_stream)))
-        }
-
-        // Reverse the entire body before sending back to the client.
-        //
-        // Since we don't know the end yet, we can't simply stream
-        // the chunks as they arrive as we did with the above uppercase endpoint.
-        // So here we do `.await` on the future, waiting on concatenating the full body,
-        // then afterwards the content can be reversed. Only then can we return a `Response`.
-        (&Method::POST, "/echo/reversed") => {
-            let whole_body = hyper::body::to_bytes(req.into_body()).await?;
-
-            let reversed_body = whole_body.iter().rev().cloned().collect::<Vec<u8>>();
-
-            let body = Body::from(reversed_body);
-            Ok(Response::new(body))
-        }
-
-        // Return the 404 Not Found for other routes.
-        _ => {
-            let mut not_found = Response::default();
-            *not_found.status_mut() = StatusCode::NOT_FOUND;
-            Ok(not_found)
-        }
+        body.extend_from_slice(&chunk);
     }
+
+    // body is loaded, now we can deserialize serde-json
+    let obj = serde_json::from_slice::<MyObj>(&body)?;
+    Ok(HttpResponse::Ok().json(obj)) // <- send response
 }
