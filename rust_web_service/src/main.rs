@@ -1,17 +1,22 @@
-use actix_web::{error, get, post, web, App, Error, HttpResponse, HttpServer, Responder};
-use std::env;
-use std::fmt;
-use std::io::{self, Read};
-use std::sync::{Arc, Mutex};
-
 mod config;
+mod datastore;
 mod order;
 mod products;
 mod web_server;
 
+use actix_web::{error, get, post, web, App, Error, HttpResponse, HttpServer, Responder};
+use slab::Slab;
+use std::env;
+use std::fmt;
+use std::io::{self, Read};
+use std::sync::{Arc, Mutex};
+use tera::Tera;
+
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
+
     HttpServer::new(|| {
+        let tera = Tera::new(concat!(env!("CARGO_MANIFEST_DIR"), "/templates/**/*")).unwrap();
         App::new()
             .service(web_server::handlers::hello)
             .service(web_server::handlers::echo)

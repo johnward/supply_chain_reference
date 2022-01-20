@@ -2,6 +2,27 @@ use crate::order::{Order, OrderDetail};
 use actix_web::{error, web, Error, HttpResponse};
 use futures::StreamExt;
 use serde_json;
+use std::collections::HashMap;
+use tera::{Context, Tera};
+
+// store tera template in application state
+async fn order_list(
+    tmpl: web::Data<tera::Tera>,
+    query: web::Query<HashMap<String, String>>,
+) -> Result<HttpResponse, Error> {
+    let s = if let Some(name) = query.get("name") {
+        // submitted form
+        let mut ctx = tera::Context::new();
+        ctx.insert("name", &name.to_owned());
+        ctx.insert("text", &"Welcome!".to_owned());
+        tmpl.render("user.html", &ctx)
+            .map_err(|_| error::ErrorInternalServerError("Template error"))?
+    } else {
+        tmpl.render("index.html", &tera::Context::new())
+            .map_err(|_| error::ErrorInternalServerError("Template error"))?
+    };
+    Ok(HttpResponse::Ok().content_type("text/html").body(s))
+}
 
 // Order endpoint
 pub async fn order_create(mut payload: web::Payload) -> Result<HttpResponse, Error> {
