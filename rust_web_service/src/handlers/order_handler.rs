@@ -40,6 +40,7 @@ pub async fn order_create(mut payload: web::Payload) -> Result<HttpResponse, Err
     // body is loaded, now we can deserialize serde-json
     let obj = serde_json::from_slice::<Order>(&body)?;
     println!("Success");
+
     Ok(HttpResponse::Ok().json(obj)) // <- send response
 }
 
