@@ -1,4 +1,4 @@
-use crate::order::{Order, OrderDetail};
+use crate::models::{Order, OrderDetail};
 use actix_web::{error, web, Error, HttpResponse};
 use futures::StreamExt;
 use serde_json;

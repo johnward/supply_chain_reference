@@ -1,4 +1,4 @@
-use crate::order::Order;
+use crate::models::Order;
 use slab::Slab;
 use std::sync::{Arc, Mutex};
 

@@ -20,16 +20,40 @@ pub fn get_connection() -> PgConnection {
     PgConnection::establish(&db_url).expect(&format!("Error connecting to {}", db_url))
 }
 
-pub fn create_post<'a>(conn: &PgConnection, title: &'a str, body: &'a str) -> Post {
+use crate::models::{NewOrder, Order};
+
+pub fn create_post<'a>(conn: &PgConnection, order: &'a Order) -> Order {
     use schema::orders;
 
-    let new_post = NewPost {
-        title: title,
-        body: body,
+    let new_order = order.clone();
+
+    let new_order = NewOrder {
+        product_name: order.product_name.clone(),
+        product_id: order.product_id,
+        amount: order.amount,
+        address: order.address.clone(),
     };
 
-    diesel::insert_into(posts::table)
-        .values(&new_post)
+    diesel::insert_into(orders::table)
+        .values(&new_order)
         .get_result(conn)
         .expect("Error saving new post")
+}
+
+fn show_posts() {
+    use crate::schema::orders::dsl::*;
+
+    let connection = get_connection();
+    let results = orders
+        .filter(fulfilled.eq(true))
+        .limit(5)
+        .load::<Order>(&connection)
+        .expect("Error loading posts");
+
+    println!("Displaying {} posts", results.len());
+    for post in results {
+        println!("{}", post.product_name);
+        println!("----------\n");
+        println!("{}", post.address);
+    }
 }

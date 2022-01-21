@@ -1,6 +1,7 @@
 use super::schema::orders;
+use serde_derive::{Deserialize, Serialize};
 
-#[derive(Queryable)]
+#[derive(Queryable, Debug, Serialize, Deserialize)]
 pub struct Order {
     pub id: i32,
     pub product_name: String,
@@ -12,6 +13,14 @@ pub struct Order {
 
 #[derive(Insertable)]
 #[table_name = "orders"]
+pub struct NewOrder {
+    pub product_name: String,
+    pub product_id: i32,
+    pub amount: i32,
+    pub address: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct OrderDetail {
-    pub id: i32,
+    id: i32,
 }

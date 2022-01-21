@@ -2,20 +2,15 @@ use serde_derive::{Deserialize, Serialize};
 
 use crate::data::order_datastore::OrderDatastore;
 
-#[derive(Debug, Serialize, Deserialize)]
-pub struct Order {
-    id: i32,
-    product_name: String,
-    product_id: i32,
-    amount: i32,
-    address: String,
-    fulfilled: String,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct OrderDetail {
-    id: i32,
-}
+// #[derive(Debug, Serialize, Deserialize)]
+// pub struct Order {
+//     id: i32,
+//     product_name: String,
+//     product_id: i32,
+//     amount: i32,
+//     address: String,
+//     fulfilled: String,
+// }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct LineItem {

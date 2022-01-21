@@ -5,10 +5,12 @@ extern crate dotenv;
 mod config;
 mod data;
 mod handlers;
-pub mod models;
+mod models;
 mod order;
 mod products;
 mod schema;
+
+use crate::data::get_connection;
 
 use actix_web::{web, App, HttpServer};
 
