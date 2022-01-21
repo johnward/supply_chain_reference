@@ -31,7 +31,7 @@ pub async fn order_create(mut payload: web::Payload) -> Result<HttpResponse, Err
     while let Some(chunk) = payload.next().await {
         let chunk = chunk?;
         // limit max size of in-memory payload
-        if (body.len() + chunk.len()) > crate::web_server::MAX_SIZE {
+        if (body.len() + chunk.len()) > crate::handlers::MAX_SIZE {
             return Err(error::ErrorBadRequest("overflow"));
         }
         body.extend_from_slice(&chunk);
@@ -50,7 +50,7 @@ pub async fn order_cancel(mut payload: web::Payload) -> Result<HttpResponse, Err
     while let Some(chunk) = payload.next().await {
         let chunk = chunk?;
         // limit max size of in-memory payload
-        if (body.len() + chunk.len()) > crate::web_server::MAX_SIZE {
+        if (body.len() + chunk.len()) > crate::handlers::MAX_SIZE {
             return Err(error::ErrorBadRequest("overflow"));
         }
         body.extend_from_slice(&chunk);
@@ -69,7 +69,7 @@ pub async fn order_update(mut payload: web::Payload) -> Result<HttpResponse, Err
     while let Some(chunk) = payload.next().await {
         let chunk = chunk?;
         // limit max size of in-memory payload
-        if (body.len() + chunk.len()) > crate::web_server::MAX_SIZE {
+        if (body.len() + chunk.len()) > crate::handlers::MAX_SIZE {
             return Err(error::ErrorBadRequest("overflow"));
         }
         body.extend_from_slice(&chunk);

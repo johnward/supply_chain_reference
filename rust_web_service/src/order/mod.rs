@@ -1,6 +1,6 @@
 use serde_derive::{Deserialize, Serialize};
 
-use crate::datastore::order_datastore::OrderDatastore;
+use crate::data::order_datastore::OrderDatastore;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Order {

@@ -33,7 +33,7 @@ pub async fn index_manual(mut payload: web::Payload) -> Result<HttpResponse, Err
     while let Some(chunk) = payload.next().await {
         let chunk = chunk?;
         // limit max size of in-memory payload
-        if (body.len() + chunk.len()) > crate::web_server::MAX_SIZE {
+        if (body.len() + chunk.len()) > crate::handlers::MAX_SIZE {
             return Err(error::ErrorBadRequest("overflow"));
         }
         body.extend_from_slice(&chunk);
