@@ -10,8 +10,6 @@ mod order;
 mod products;
 mod schema;
 
-use crate::data::get_connection;
-
 use actix_web::{web, App, HttpServer};
 
 #[actix_web::main]
@@ -20,6 +18,7 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .service(handlers::handlers::hello)
             .service(handlers::handlers::echo)
+            .service(handlers::order_handler::order_list)
             .service(
                 web::resource("/order/create")
                     .route(web::post().to(handlers::order_handler::order_create)),

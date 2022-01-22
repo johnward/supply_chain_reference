@@ -1,6 +1,7 @@
 use crate::schema;
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
+use diesel::result::*;
 use dotenv::dotenv;
 use std::env;
 
@@ -34,26 +35,32 @@ pub fn create_post<'a>(conn: &PgConnection, order: &'a Order) -> Order {
         address: order.address.clone(),
     };
 
-    diesel::insert_into(orders::table)
+    let ret = diesel::insert_into(orders::table)
         .values(&new_order)
         .get_result(conn)
-        .expect("Error saving new post")
+        .expect("Error saving new post");
+
+    println!("Ret: {:?}", ret);
+
+    ret
 }
 
-fn show_posts() {
+pub fn show_posts(customer_id: i32) -> Vec<Order> {
     use crate::schema::orders::dsl::*;
 
     let connection = get_connection();
     let results = orders
-        .filter(fulfilled.eq(true))
+        .filter(customer_id.eq(customer_id))
         .limit(5)
         .load::<Order>(&connection)
         .expect("Error loading posts");
 
-    println!("Displaying {} posts", results.len());
-    for post in results {
-        println!("{}", post.product_name);
-        println!("----------\n");
-        println!("{}", post.address);
-    }
+    // println!("Displaying {} posts", results.len());
+    // for post in results {
+    //     println!("{}", post.product_name);
+    //     println!("----------\n");
+    //     println!("{}", post.address);
+    // }
+
+    results
 }
