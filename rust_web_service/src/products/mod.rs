@@ -1,10 +1,10 @@
 use serde_derive::{Deserialize, Serialize};
 
-pub enum ProductType {
-    mp3,
-    book,
-    mp4,
-}
+// pub enum _ProductType {
+//     mp3,
+//     book,
+//     mp4,
+// }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Product {
@@ -13,6 +13,6 @@ pub struct Product {
     gtin: String,
 }
 
-fn get_product(product_name: String) {}
+fn _get_product(_product_name: String) {}
 
-fn new_product(product: Product) {}
+fn _new_product(_product: Product) {}

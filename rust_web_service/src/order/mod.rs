@@ -31,8 +31,8 @@ pub struct LineItem {
 //     }
 // }
 
-pub fn new_order(product_name: String, gtin: String, amount: u32) {}
+pub fn _new_order(_product_name: String, _gtin: String, _amount: u32) {}
 
-pub fn update_order(product_name: String, gtin: String, amount: u32) {}
+pub fn _update_order(_product_name: String, _gtin: String, _amount: u32) {}
 
-pub fn delete_order(product_name: String, gtin: String, amount: u32) {}
+pub fn _delete_order(_product_name: String, _gtin: String, _amount: u32) {}

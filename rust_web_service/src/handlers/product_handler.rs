@@ -1,21 +1,6 @@
-use actix_web::{error, get, post, web, App, Error, HttpResponse, HttpServer, Responder};
-use futures::StreamExt;
-use futures_util::TryStreamExt;
-use std::{convert::Infallible, net::SocketAddr};
-
 use crate::products::Product;
-
-use std::env;
-use std::fmt;
-use std::fs::File;
-use std::io::{self, Read};
-use std::str;
-use std::sync::{Arc, Mutex};
-
-use crate::products;
-
-use serde::de;
-use serde::{Deserialize, Serialize};
+use actix_web::{error, web, Error, HttpResponse};
+use futures::StreamExt;
 use serde_json;
 
 // Order endpoint

@@ -14,6 +14,8 @@ use actix_web::{web, App, HttpServer};
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
+    let server_config = config::get_config();
+
     HttpServer::new(|| {
         App::new()
             .service(handlers::order_handler::order_list)
@@ -42,7 +44,7 @@ async fn main() -> std::io::Result<()> {
                     .route(web::post().to(handlers::product_handler::product_update)),
             )
     })
-    .bind("127.0.0.1:8080")?
+    .bind(server_config.unwrap())?
     .run()
     .await
 }
