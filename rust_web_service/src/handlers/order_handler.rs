@@ -6,7 +6,7 @@ use serde_json;
 
 #[get("/order/list/{customer_id}")]
 async fn order_list(customer_id: web::Path<i32>) -> Result<impl Responder, Error> {
-    let orders = show_posts(customer_id.into_inner());
+    let orders = show_orders(customer_id.into_inner());
     Ok(HttpResponse::Ok().json(orders))
 }
 
@@ -28,7 +28,7 @@ pub async fn order_create(mut payload: web::Payload) -> Result<HttpResponse, Err
     println!("Success");
 
     let connection = get_connection();
-    let created_order = create_post(&connection, &obj);
+    let created_order = create_order(&connection, &obj);
 
     //show_posts(false);
 
@@ -49,7 +49,12 @@ pub async fn order_cancel(mut payload: web::Payload) -> Result<HttpResponse, Err
     }
 
     // body is loaded, now we can deserialize serde-json
-    let obj = serde_json::from_slice::<OrderDetail>(&body)?;
+    let obj = serde_json::from_slice::<Order>(&body)?;
+
+    // Delete Order
+    let connection = get_connection();
+    delete_order(&connection, &obj);
+
     println!("Success");
     Ok(HttpResponse::Ok().json(obj)) // <- send response
 }
@@ -69,6 +74,11 @@ pub async fn order_update(mut payload: web::Payload) -> Result<HttpResponse, Err
 
     // body is loaded, now we can deserialize serde-json
     let obj = serde_json::from_slice::<Order>(&body)?;
+
+    // Update Order
+    let connection = get_connection();
+    update_order(&connection, &obj);
+
     println!("Success");
     Ok(HttpResponse::Ok().json(obj)) // <- send response
 }
