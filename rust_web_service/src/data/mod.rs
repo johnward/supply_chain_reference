@@ -4,6 +4,7 @@ use dotenv::dotenv;
 use std::env;
 
 pub mod orders;
+pub mod products;
 
 pub trait Item<T> {
     fn insert();

@@ -1,7 +1,15 @@
-use crate::products::Product;
-use actix_web::{error, web, Error, HttpResponse};
+use crate::data::products::*;
+use crate::data::*;
+use crate::models::Product;
+use actix_web::{error, get, web, Error, HttpResponse, Responder};
 use futures::StreamExt;
 use serde_json;
+
+#[get("/product/list/")]
+async fn product_list() -> Result<impl Responder, Error> {
+    let products = show_products();
+    Ok(HttpResponse::Ok().json(products))
+}
 
 // Order endpoint
 pub async fn product_create(mut payload: web::Payload) -> Result<HttpResponse, Error> {
@@ -19,7 +27,13 @@ pub async fn product_create(mut payload: web::Payload) -> Result<HttpResponse, E
     // body is loaded, now we can deserialize serde-json
     let obj = serde_json::from_slice::<Product>(&body)?;
     println!("Success");
-    Ok(HttpResponse::Ok().json(obj)) // <- send response
+
+    let connection = get_connection();
+    let created_order = create_product(&connection, &obj);
+
+    //show_posts(false);
+
+    Ok(HttpResponse::Ok().json(created_order)) // <- send response
 }
 
 // Order endpoint
@@ -37,6 +51,11 @@ pub async fn product_delete(mut payload: web::Payload) -> Result<HttpResponse, E
 
     // body is loaded, now we can deserialize serde-json
     let obj = serde_json::from_slice::<Product>(&body)?;
+
+    // Delete Order
+    let connection = get_connection();
+    delete_product(&connection, &obj);
+
     println!("Success");
     Ok(HttpResponse::Ok().json(obj)) // <- send response
 }
@@ -56,6 +75,11 @@ pub async fn product_update(mut payload: web::Payload) -> Result<HttpResponse, E
 
     // body is loaded, now we can deserialize serde-json
     let obj = serde_json::from_slice::<Product>(&body)?;
+
+    // Update Order
+    let connection = get_connection();
+    update_product(&connection, &obj);
+
     println!("Success");
     Ok(HttpResponse::Ok().json(obj)) // <- send response
 }
