@@ -16,8 +16,6 @@ use actix_web::{web, App, HttpServer};
 async fn main() -> std::io::Result<()> {
     HttpServer::new(|| {
         App::new()
-            .service(handlers::handlers::hello)
-            .service(handlers::handlers::echo)
             .service(handlers::order_handler::order_list)
             .service(
                 web::resource("/order/create")
@@ -43,11 +41,6 @@ async fn main() -> std::io::Result<()> {
                 web::resource("/product/update")
                     .route(web::post().to(handlers::product_handler::product_update)),
             )
-            .route(
-                "/product/list",
-                web::get().to(handlers::handlers::manual_hello),
-            )
-            .route("/hey", web::get().to(handlers::handlers::manual_hello))
     })
     .bind("127.0.0.1:8080")?
     .run()

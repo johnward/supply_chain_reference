@@ -1,11 +1,8 @@
 use log::{debug, info, trace, warn};
 use serde_derive::Deserialize;
-use std::env;
-use std::fmt;
 use std::fs::File;
 use std::io::{self, Read};
 use std::net::SocketAddr;
-use std::sync::{Arc, Mutex};
 
 #[derive(Deserialize)]
 pub struct ServerConfig {
