@@ -12,7 +12,7 @@ pub struct Order {
     pub fulfilled: bool,
 }
 
-#[derive(Insertable)]
+#[derive(Insertable, Queryable)]
 #[table_name = "orders"]
 pub struct NewOrder {
     pub product_name: String,

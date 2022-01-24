@@ -3,33 +3,11 @@ use crate::models::{Order, OrderDetail};
 use actix_web::{error, get, web, Error, HttpResponse, Responder};
 use futures::StreamExt;
 use serde_json;
-use std::collections::HashMap;
-use tera::{Context, Tera};
 
-// // store tera template in application state
-// pub async fn order_list(
-//     tmpl: web::Data<tera::Tera>,
-//     query: web::Query<HashMap<String, String>>,
-// ) -> Result<HttpResponse, Error> {
-//     let s = if let Some(name) = query.get("name") {
-//         // submitted form
-//         let mut ctx = tera::Context::new();
-//         ctx.insert("name", &name.to_owned());
-//         ctx.insert("text", &"Welcome!".to_owned());
-//         tmpl.render("user.html", &ctx)
-//             .map_err(|_| error::ErrorInternalServerError("Template error"))?
-//     } else {
-//         tmpl.render("index.html", &tera::Context::new())
-//             .map_err(|_| error::ErrorInternalServerError("Template error"))?
-//     };
-//     Ok(HttpResponse::Ok().content_type("text/html").body(s))
-// }
-
-#[get("/order/{id}")]
-async fn order_list(customer_id: web::Path<i32>) -> Result<HttpResponse, Error> {
-    let orders = show_posts(customer_id);
-    println!("id: {}", customer_id);
-    Ok(web::Json(orders))
+#[get("/order/list/{customer_id}")]
+async fn order_list(customer_id: web::Path<i32>) -> Result<impl Responder, Error> {
+    let orders = show_posts(customer_id.into_inner());
+    Ok(HttpResponse::Ok().json(orders))
 }
 
 // Order endpoint

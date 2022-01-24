@@ -1,7 +1,8 @@
+use crate::models::{NewOrder, Order};
 use crate::schema;
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
-use diesel::result::*;
+use diesel::result::Error;
 use dotenv::dotenv;
 use std::env;
 
@@ -20,8 +21,6 @@ pub fn get_connection() -> PgConnection {
 
     PgConnection::establish(&db_url).expect(&format!("Error connecting to {}", db_url))
 }
-
-use crate::models::{NewOrder, Order};
 
 pub fn create_post<'a>(conn: &PgConnection, order: &'a Order) -> Order {
     use schema::orders;
@@ -45,12 +44,12 @@ pub fn create_post<'a>(conn: &PgConnection, order: &'a Order) -> Order {
     ret
 }
 
-pub fn show_posts(customer_id: i32) -> Vec<Order> {
+pub fn show_posts(customer_id_needed: i32) -> Vec<Order> {
     use crate::schema::orders::dsl::*;
 
     let connection = get_connection();
     let results = orders
-        .filter(customer_id.eq(customer_id))
+        .filter(customer_id.eq(customer_id_needed))
         .limit(5)
         .load::<Order>(&connection)
         .expect("Error loading posts");
