@@ -1,18 +1,32 @@
-use crate::data::products::*;
+use crate::data::stock::*;
 use crate::data::*;
-use crate::models::Product;
+use crate::models::Stock;
 use actix_web::{error, get, web, Error, HttpResponse, Responder};
 use futures::StreamExt;
+use serde_derive::{Deserialize, Serialize};
 use serde_json;
 
-#[get("/product/list/")]
-async fn product_list() -> Result<impl Responder, Error> {
-    let products = show_products();
-    Ok(HttpResponse::Ok().json(products))
+#[derive(Serialize, Deserialize, Debug)]
+pub struct StockIncr {
+    id: i32,
+    incr_amount: i32,
+}
+
+pub async fn stock_increment(data: web::Json<StockIncr>) -> Result<HttpResponse, Error> {
+    let connection = get_connection();
+    let stock = increment_stock(&connection, data.id, data.incr_amount);
+
+    Ok(HttpResponse::Ok().json(stock))
+}
+
+#[get("/stock/list/")]
+pub async fn stock_list() -> Result<impl Responder, Error> {
+    let stocks = show_stock();
+    Ok(HttpResponse::Ok().json(stocks))
 }
 
 // Order endpoint
-pub async fn product_create(mut payload: web::Payload) -> Result<HttpResponse, Error> {
+pub async fn stock_create(mut payload: web::Payload) -> Result<HttpResponse, Error> {
     // payload is a stream of Bytes objects
     let mut body = web::BytesMut::new();
     while let Some(chunk) = payload.next().await {
@@ -25,19 +39,17 @@ pub async fn product_create(mut payload: web::Payload) -> Result<HttpResponse, E
     }
 
     // body is loaded, now we can deserialize serde-json
-    let obj = serde_json::from_slice::<Product>(&body)?;
+    let obj = serde_json::from_slice::<Stock>(&body)?;
     println!("Success");
 
     let connection = get_connection();
-    let created_product = create_product(&connection, &obj);
+    let created_stock = create_stock(&connection, &obj);
 
-    //show_posts(false);
-
-    Ok(HttpResponse::Ok().json(created_product)) // <- send response
+    Ok(HttpResponse::Ok().json(created_stock)) // <- send response
 }
 
 // Order endpoint
-pub async fn product_delete(mut payload: web::Payload) -> Result<HttpResponse, Error> {
+pub async fn stock_delete(mut payload: web::Payload) -> Result<HttpResponse, Error> {
     // payload is a stream of Bytes objects
     let mut body = web::BytesMut::new();
     while let Some(chunk) = payload.next().await {
@@ -50,18 +62,18 @@ pub async fn product_delete(mut payload: web::Payload) -> Result<HttpResponse, E
     }
 
     // body is loaded, now we can deserialize serde-json
-    let obj = serde_json::from_slice::<Product>(&body)?;
+    let obj = serde_json::from_slice::<Stock>(&body)?;
 
     // Delete Order
     let connection = get_connection();
-    delete_product(&connection, &obj);
+    delete_stock(&connection, &obj);
 
     println!("Success");
     Ok(HttpResponse::Ok().json(obj)) // <- send response
 }
 
 // Order endpoint
-pub async fn product_update(mut payload: web::Payload) -> Result<HttpResponse, Error> {
+pub async fn stock_update(mut payload: web::Payload) -> Result<HttpResponse, Error> {
     // payload is a stream of Bytes objects
     let mut body = web::BytesMut::new();
     while let Some(chunk) = payload.next().await {
@@ -74,11 +86,11 @@ pub async fn product_update(mut payload: web::Payload) -> Result<HttpResponse, E
     }
 
     // body is loaded, now we can deserialize serde-json
-    let obj = serde_json::from_slice::<Product>(&body)?;
+    let obj = serde_json::from_slice::<Stock>(&body)?;
 
     // Update Order
     let connection = get_connection();
-    update_product(&connection, &obj);
+    update_stock(&connection, &obj);
 
     println!("Success");
     Ok(HttpResponse::Ok().json(obj)) // <- send response

@@ -43,6 +43,23 @@ async fn main() -> std::io::Result<()> {
                 web::resource("/product/update")
                     .route(web::post().to(handlers::product_handler::product_update)),
             )
+            .service(
+                web::resource("/stock/create")
+                    .route(web::post().to(handlers::stock_handler::stock_create)),
+            )
+            .service(
+                web::resource("/stock/delete")
+                    .route(web::post().to(handlers::stock_handler::stock_delete)),
+            )
+            .service(
+                web::resource("/stock/update")
+                    .route(web::post().to(handlers::stock_handler::stock_update)),
+            )
+            .service(
+                web::resource("/stock/increment")
+                    .route(web::post().to(handlers::stock_handler::stock_increment)),
+                    
+            )
     })
     .bind(server_config.unwrap())?
     .run()

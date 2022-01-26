@@ -5,6 +5,7 @@ use std::env;
 
 pub mod orders;
 pub mod products;
+pub mod stock;
 
 pub trait Item<T> {
     fn insert();
