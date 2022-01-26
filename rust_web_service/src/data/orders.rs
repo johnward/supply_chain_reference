@@ -26,7 +26,7 @@ pub fn create_order<'a>(conn: &PgConnection, order: &'a Order) -> Order {
     ret
 }
 
-pub fn _fulfill_order<'a>(con: &PgConnection, order_id: i32) {
+pub fn fulfill_order<'a>(con: &PgConnection, order_id: i32) {
     let order = diesel::update(orders.find(order_id))
         .set(fulfilled.eq(true))
         .get_result::<Order>(con)

@@ -40,7 +40,7 @@ pub fn create_stock<'a>(conn: &PgConnection, stock: &'a Stock) -> Stock {
 /// ```
 pub fn increment_stock<'a>(con: &PgConnection, stock_id: i32, amount_change: i32) -> Stock {
     let stock = diesel::update(stocks.find(stock_id))
-        .set(amount.eq(amount_change + 1))
+        .set(amount.eq(amount + amount_change))
         .get_result::<Stock>(con)
         .expect(&format!("Unable to find post {}", stock_id)); //.get_result();
 

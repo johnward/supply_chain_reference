@@ -32,6 +32,10 @@ async fn main() -> std::io::Result<()> {
                     .route(web::post().to(handlers::order_handler::order_update)),
             )
             .service(
+                web::resource("/order/fulfill")
+                    .route(web::post().to(handlers::order_handler::fulfill_order)),
+            )
+            .service(
                 web::resource("/product/create")
                     .route(web::post().to(handlers::product_handler::product_create)),
             )
@@ -58,7 +62,6 @@ async fn main() -> std::io::Result<()> {
             .service(
                 web::resource("/stock/increment")
                     .route(web::post().to(handlers::stock_handler::stock_increment)),
-                    
             )
     })
     .bind(server_config.unwrap())?
