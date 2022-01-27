@@ -75,3 +75,13 @@ pub fn show_stock() -> Vec<Stock> {
 
     results
 }
+
+pub fn get_stock(con: &PgConnection, stock_id: i32) -> Vec<Stock> {
+    let results = stocks
+        .filter(id.eq(stock_id))
+        .limit(5)
+        .load::<Stock>(con)
+        .expect("Error loading posts");
+
+    results
+}

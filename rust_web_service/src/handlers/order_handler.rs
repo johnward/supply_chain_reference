@@ -1,6 +1,7 @@
 use crate::data::orders::*;
 use crate::data::*;
 use crate::models::Order;
+use crate::order::complete_fulfill_order;
 use actix_web::{error, get, web, Error, HttpResponse, Responder};
 use futures::StreamExt;
 use serde_derive::{Deserialize, Serialize};
@@ -12,17 +13,12 @@ pub struct OrderInfo {
 }
 
 pub async fn fulfill_order(data: web::Json<OrderInfo>) -> Result<HttpResponse, Error> {
-    let connection = get_connection();
+    let fulfilled = complete_fulfill_order(data.id);
 
-    // Get Order amount
-    // Get Stock amount
-    // if order amount is <= stock amount
-    //      Decrement stock amount by order amount
-    //      Set order to fulfilled.
-
-    let order = orders::fulfill_order(&connection, data.id);
-
-    Ok(HttpResponse::Ok().json(order))
+    match fulfilled {
+        Ok(_) => Ok(HttpResponse::Ok().finish()),
+        Err(_) => Err(HttpResponse::Ok().error()),
+    }
 }
 
 #[get("/order/list/{customer_id}")]

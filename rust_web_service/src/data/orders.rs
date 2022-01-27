@@ -26,13 +26,15 @@ pub fn create_order<'a>(conn: &PgConnection, order: &'a Order) -> Order {
     ret
 }
 
-pub fn fulfill_order<'a>(con: &PgConnection, order_id: i32) {
+pub fn fulfill_order<'a>(con: &PgConnection, order_id: i32) -> Option<Order> {
     let order = diesel::update(orders.find(order_id))
         .set(fulfilled.eq(true))
         .get_result::<Order>(con)
         .expect(&format!("Unable to find post {}", order_id)); //.get_result();
 
     println!("Published post {}", order.id);
+
+    Some(order)
 }
 
 pub fn update_order<'a>(con: &PgConnection, order: &'a Order) {
