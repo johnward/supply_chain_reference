@@ -17,7 +17,11 @@ pub async fn fulfill_order(data: web::Json<OrderInfo>) -> Result<HttpResponse, E
 
     match fulfilled {
         Ok(_) => Ok(HttpResponse::Ok().finish()),
-        Err(_) => Err(HttpResponse::Ok().error()),
+        Err(_) => {
+            // return arbitory error for now
+            let return_error = Error::from(());
+            Err(return_error)
+        }
     }
 }
 
