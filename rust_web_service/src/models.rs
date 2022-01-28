@@ -14,6 +14,27 @@ pub struct Order {
     pub fulfilled: bool,
 }
 
+impl Order {
+    pub fn new(
+        id: i32,
+        product_name: String,
+        product_id: i32,
+        customer_id: i32,
+        amount: i32,
+        address: String,
+    ) -> Order {
+        Order {
+            id,
+            product_name,
+            product_id,
+            customer_id,
+            amount,
+            address,
+            fulfilled: false,
+        }
+    }
+}
+
 #[derive(Insertable, Queryable)]
 #[table_name = "orders"]
 pub struct NewOrder {

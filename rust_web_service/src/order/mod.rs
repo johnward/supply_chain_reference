@@ -1,13 +1,21 @@
-use crate::data::orders::*;
 use crate::data::stock::*;
 use crate::data::*;
-use crate::data::*;
-use crate::models::Order;
-use crate::models::Stock;
-use futures::StreamExt;
-use serde_derive::{Deserialize, Serialize};
-use serde_json;
 
+/// Complete the fulfilment of an order and updates the stock balance
+/// # Arguments
+///
+/// * 'id' - Id of the Order being fulfilled
+///
+/// # Examples
+/// let order = Order::new(id: 3,
+///                 String::new("Aeroplanes Book"),
+///                 32,
+///                 5,
+///                 4,
+///                 String::new("4 Book Street, London"));
+///            
+/// result = complete_fulfill_order(order.id);
+///
 pub fn complete_fulfill_order(id: i32) -> Result<(), ()> {
     let connection = get_connection();
 
