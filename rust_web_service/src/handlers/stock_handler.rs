@@ -25,7 +25,14 @@ pub async fn stock_list() -> Result<impl Responder, Error> {
     Ok(HttpResponse::Ok().json(stocks))
 }
 
-// Order endpoint
+/// The endpoint to create a new stock balance
+/// # Arguments
+///
+/// * 'payload' - this contains the JSON body data for the new stock
+///            
+/// # Return type
+/// * HTTPResponse or Error
+/// 
 pub async fn stock_create(mut payload: web::Payload) -> Result<HttpResponse, Error> {
     // payload is a stream of Bytes objects
     let mut body = web::BytesMut::new();
@@ -48,7 +55,14 @@ pub async fn stock_create(mut payload: web::Payload) -> Result<HttpResponse, Err
     Ok(HttpResponse::Ok().json(created_stock)) // <- send response
 }
 
-// Order endpoint
+/// The endpoint to delete a stock balance
+/// # Arguments
+///
+/// * 'payload' - this contains the JSON body data for the stock
+///            
+/// # Return type
+/// * HTTPResponse or Error
+/// 
 pub async fn stock_delete(mut payload: web::Payload) -> Result<HttpResponse, Error> {
     // payload is a stream of Bytes objects
     let mut body = web::BytesMut::new();
@@ -72,7 +86,14 @@ pub async fn stock_delete(mut payload: web::Payload) -> Result<HttpResponse, Err
     Ok(HttpResponse::Ok().json(obj)) // <- send response
 }
 
-// Order endpoint
+/// The endpoint to update a stock balance
+/// # Arguments
+///
+/// * 'payload' - this contains the JSON body data for the stock
+///            
+/// # Return type
+/// * HTTPResponse or Error
+/// 
 pub async fn stock_update(mut payload: web::Payload) -> Result<HttpResponse, Error> {
     // payload is a stream of Bytes objects
     let mut body = web::BytesMut::new();
