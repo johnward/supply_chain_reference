@@ -31,24 +31,18 @@ use actix_web::{web, App, HttpServer};
 
 // https://stackoverflow.com/questions/54208702/embedding-actix-web-into-a-struct-so-that-i-can-start-stop-server
 
-pub struct WebService2<A,H,F>
-where
-    A: std::future::Future,
-    H: IntoHttpHandler + 'static, 
-    F: Fn() -> H + Send + Clone + 'static
+pub struct WebService2
 {
-    server: Option<HttpServer<>,
+
 }
 
-impl<F> WebService2<F>
-where
-    F: std::future::Future,
+impl WebService2
 {
     #[actix_web::main]
     pub async fn start_webserver(self) {
         let server_config = config::get_config();
 
-        self.server = HttpServer::new(|| {
+        HttpServer::new(|| {
             App::new()
                 .service(order_handler::order_list)
                 .service(
