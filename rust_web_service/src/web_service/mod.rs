@@ -1,10 +1,13 @@
-use crate::handlers::{order_handler, product_handler, stock_handler};
+use crate::handlers::{core_handler, order_handler, product_handler, stock_handler};
+use actix_web::dev::Server;
 use actix_web::{web, App, HttpRequest, HttpServer, Responder};
+use futures::executor;
 use log::warn;
 use serde_derive::Deserialize;
 use std::fs::File;
 use std::io::{ErrorKind, Read};
 use std::net::{IpAddr, Ipv4Addr, SocketAddr};
+use std::{sync::mpsc, thread};
 
 #[derive(Deserialize)]
 pub struct ServerConfig {
@@ -16,6 +19,12 @@ impl ServerConfig {
         &self.address
     }
 }
+
+// trait Service {
+//     fn start_service() -> std::io::Result<()>;
+
+//     fn stop_service() -> std::io::Result<()>;
+// }
 
 pub struct WebService {
     config: ServerConfig,
@@ -59,9 +68,14 @@ impl WebService {
     }
 
     pub async fn start_webserver(&mut self) -> std::io::Result<()> {
-        HttpServer::new(|| {
+        // create a channel
+        let (sender, receiver) = mpsc::channel::<()>();
+
+        let server = HttpServer::new(move || {
             App::new()
+                .data(sender.clone())
                 .route("/", web::get().to(WebService::healthcheck))
+                .route("/stop", web::get().to(core_handler::stop))
                 .service(order_handler::order_list)
                 .service(
                     web::resource("/order/create")
@@ -109,8 +123,33 @@ impl WebService {
                 )
         })
         .bind(self.config().address())?
-        .run()
-        .await
+        .run();
+
+        // clone our Server handle to pass to a thread
+        let srv = server.clone();
+
+        WebService::setup_gracefulstop(srv, receiver);
+        // // Create a new thread to wait for the stop signal
+        // thread::spawn(move || {
+        //     // blocking, while we wait for the server shutdown signal
+        //     receiver.recv().unwrap();
+
+        //     // stop server
+        //     executor::block_on(srv.stop(true))
+        // });
+
+        server.await
+    }
+
+    pub fn setup_gracefulstop(srv: Server, receiver: mpsc::Receiver<()>) {
+        // Create a new thread to wait for the stop signal
+        thread::spawn(move || {
+            // blocking, while we wait for the server shutdown signal
+            receiver.recv().unwrap();
+
+            // stop server
+            executor::block_on(srv.stop(true))
+        });
     }
 }
 
