@@ -1,49 +1,67 @@
-use crate::config;
 use crate::handlers::{order_handler, product_handler, stock_handler};
-use actix_web::{web, App, HttpServer};
+use actix_web::{web, App, HttpRequest, HttpServer, Responder};
+use log::warn;
+use serde_derive::Deserialize;
+use std::fs::File;
+use std::io::{ErrorKind, Read};
+use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 
-// struct CustomServer {
-//     srv: HttpServer<App, fn() -> App>,
-// }
-
-// impl CustomServer {
-//     fn new() -> CustomServer {
-//         CustomServer {
-//             srv: HttpServer::new(|| App),
-//         }
-//     }
-// }
-// Make async: https://stackoverflow.com/questions/58173711/how-can-i-store-an-async-function-in-a-struct-and-call-it-from-a-struct-instance
-
-// pub struct Service {
-//     name: String,
-// }
-
-// impl Service {
-//     pub fn new(name: &String) -> Service {
-//         Service { name: name.clone() }
-//     }
-// }
-
-// async fn foo(x: u8) -> u8 {
-//     2 * x
-// }
-
-// https://stackoverflow.com/questions/54208702/embedding-actix-web-into-a-struct-so-that-i-can-start-stop-server
-
-pub struct WebService2
-{
-
+#[derive(Deserialize)]
+pub struct ServerConfig {
+    pub address: SocketAddr,
 }
 
-impl WebService2
-{
-    #[actix_web::main]
-    pub async fn start_webserver(self) {
-        let server_config = config::get_config();
+impl ServerConfig {
+    fn address(&self) -> &SocketAddr {
+        &self.address
+    }
+}
 
+pub struct WebService {
+    config: ServerConfig,
+}
+
+impl WebService {
+    pub fn new() -> WebService {
+        let config = WebService::get_config();
+
+        WebService { config }
+    }
+
+    fn config(&self) -> &ServerConfig {
+        &self.config
+    }
+
+    async fn healthcheck(req: HttpRequest) -> impl Responder {
+        let name = req.match_info().get("name").unwrap_or("Monolith");
+        format!("Hello {}!", &name)
+    }
+
+    pub fn get_config() -> ServerConfig {
+        let config = File::open("settings.toml")
+            .and_then(|mut file| {
+                let mut buffer = String::new();
+                file.read_to_string(&mut buffer)?;
+                Ok(buffer)
+            })
+            .and_then(|buffer| {
+                let server_config = toml::from_str::<ServerConfig>(&buffer)
+                    .map_err(|err| std::io::Error::new(ErrorKind::Other, err));
+                server_config
+            })
+            .map_err(|err| {
+                warn!("Can't read config file: {}", err);
+                SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), 8080)
+            })
+            .ok();
+
+        config.unwrap()
+    }
+
+    pub async fn start_webserver(&mut self) -> std::io::Result<()> {
         HttpServer::new(|| {
             App::new()
+                .route("/", web::get().to(WebService::healthcheck))
                 .service(order_handler::order_list)
                 .service(
                     web::resource("/order/create")
@@ -90,9 +108,9 @@ impl WebService2
                         .route(web::post().to(stock_handler::stock_increment)),
                 )
         })
-        .bind(server_config.unwrap())?;
-
-        self.server.run().await
+        .bind(self.config().address())?
+        .run()
+        .await
     }
 }
 
