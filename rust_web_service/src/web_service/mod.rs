@@ -93,6 +93,7 @@ impl WebService {
                     web::resource("/order/fulfill")
                         .route(web::post().to(order_handler::fulfill_order)),
                 )
+                .service(product_handler::product_list)
                 .service(
                     web::resource("/product/create")
                         .route(web::post().to(product_handler::product_create)),
@@ -105,6 +106,7 @@ impl WebService {
                     web::resource("/product/update")
                         .route(web::post().to(product_handler::product_update)),
                 )
+                .service(stock_handler::stock_list)
                 .service(
                     web::resource("/stock/create")
                         .route(web::post().to(stock_handler::stock_create)),

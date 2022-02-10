@@ -81,3 +81,8 @@ pub struct NewStock {
     pub product_id: i32,
     pub amount: i32,
 }
+
+#[derive(Serialize, Deserialize)]
+pub struct ReturnInfo {
+    pub amount: usize,
+}

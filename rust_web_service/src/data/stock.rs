@@ -49,13 +49,15 @@ pub fn increment_stock<'a>(con: &PgConnection, stock_id: i32, amount_change: i32
     stock
 }
 
-pub fn update_stock<'a>(con: &PgConnection, stock: &'a Stock) {
+pub fn update_stock<'a>(con: &PgConnection, stock: &'a Stock) -> Stock {
     let stock = diesel::update(stocks)
         .set(stock)
         .get_result::<Stock>(con)
         .expect(&format!("Unable to find post {}", stock.id)); //.get_result();
 
     println!("Published post {}", stock.id);
+
+    stock
 }
 
 pub fn delete_stock<'a>(con: &PgConnection, stock: &'a Stock) -> usize {
