@@ -80,10 +80,10 @@ pub async fn stock_delete(mut payload: web::Payload) -> Result<HttpResponse, Err
 
     // Delete Order
     let connection = get_connection();
-    delete_stock(&connection, &obj);
+    let num_delete = delete_stock(&connection, &obj);
 
     println!("Success");
-    Ok(HttpResponse::Ok().json(obj)) // <- send response
+    Ok(HttpResponse::Ok().body(num_delete)) // <- send response
 }
 
 /// The endpoint to update a stock balance
@@ -125,51 +125,103 @@ mod tests {
 
     #[actix_rt::test]
     async fn test_index_create_stock() {
-        let mut app = test::init_service(
-            App::new()
-                .service(
-                    web::resource("/stock/create")
-                        .route(web::post().to(stock_handler::stock_create)),
-                )
-                .service(
-                    web::resource("/stock/delete")
-                        .route(web::post().to(stock_handler::stock_delete)),
-                )
-                .service(
-                    web::resource("/stock/update")
-                        .route(web::post().to(stock_handler::stock_update)),
-                )
-                .service(
-                    web::resource("/stock/increment")
-                        .route(web::post().to(stock_handler::stock_increment)),
-                ),
-        )
+        let mut app = test::init_service(App::new().service(
+            web::resource("/stock/create").route(web::post().to(stock_handler::stock_create)),
+        ))
         .await;
 
         let payload = r#"{"id":0,
         "product_name":"Harry Potter",
         "product_id":3,
-        "customer_id": 5,
-        "amount":3,
-        "address":"4 Privot Drive, London",
-        "fulfilled":false
+        "amount":3
     }"#
         .as_bytes();
 
         let req = test::TestRequest::post()
-            .uri("http://localhost:8080/order/create")
+            .uri("http://localhost:8080/stock/create")
             .header("content-type", "application/json")
             .set_payload(payload)
             .to_request();
 
-        //let resp: AppState = test::read_response_json(&mut app, req).await;
-        //let resp = test::read_response(&mut app, req).await;
-        let resp = test::call_service(&mut app, req).await;
+        let created_stock: Stock = test::read_response_json(&mut app, req).await;
 
-        println!("Response: {:?}", resp);
+        assert_eq!(created_stock.amount, 3);
+    }
 
-        //assert_eq!(1, 1);
-        assert!(resp.status().is_client_error());
+    #[actix_rt::test]
+    async fn test_index_delete_stock() {
+        let mut app = test::init_service(App::new().service(
+            web::resource("/stock/create").route(web::post().to(stock_handler::stock_create)),
+        ))
+        .await;
+
+        let payload = r#"{"id":0,
+        "product_name":"Harry Potter",
+        "product_id":3,
+        "amount":3
+    }"#
+        .as_bytes();
+
+        let req = test::TestRequest::post()
+            .uri("http://localhost:8080/stock/create")
+            .header("content-type", "application/json")
+            .set_payload(payload)
+            .to_request();
+
+        //let created_stock: Stock = test::read_response_json(&mut app, req).await;
+        let num_deleted = test::read_response(&mut app, req).await;
+
+        assert_eq!(1, 1);
+    }
+
+    #[actix_rt::test]
+    async fn test_index_update_stock() {
+        let mut app = test::init_service(App::new().service(
+            web::resource("/stock/create").route(web::post().to(stock_handler::stock_create)),
+        ))
+        .await;
+
+        let payload = r#"{"id":0,
+        "product_name":"Harry Potter",
+        "product_id":3,
+        "amount":3
+    }"#
+        .as_bytes();
+
+        let req = test::TestRequest::post()
+            .uri("http://localhost:8080/stock/create")
+            .header("content-type", "application/json")
+            .set_payload(payload)
+            .to_request();
+
+        let created_stock: Stock = test::read_response_json(&mut app, req).await;
+
+        assert_eq!(created_stock.amount, 3);
+    }
+
+    #[actix_rt::test]
+    async fn test_index_increment_stock() {
+        let mut app = test::init_service(App::new().service(
+            web::resource("/stock/create").route(web::post().to(stock_handler::stock_create)),
+        ))
+        .await;
+
+        let payload = r#"{"id":0,
+        "product_name":"Harry Potter",
+        "product_id":3,
+        "amount":3
+    }"#
+        .as_bytes();
+
+        let req = test::TestRequest::post()
+            .uri("http://localhost:8080/stock/create")
+            .header("content-type", "application/json")
+            .set_payload(payload)
+            .to_request();
+
+        let created_stock: Stock = test::read_response_json(&mut app, req).await;
+
+        assert_eq!(created_stock.amount, 3);
     }
 
     #[actix_rt::test]

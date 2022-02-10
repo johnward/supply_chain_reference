@@ -58,12 +58,14 @@ pub fn update_stock<'a>(con: &PgConnection, stock: &'a Stock) {
     println!("Published post {}", stock.id);
 }
 
-pub fn delete_stock<'a>(con: &PgConnection, stock: &'a Stock) {
+pub fn delete_stock<'a>(con: &PgConnection, stock: &'a Stock) -> usize {
     let num_deleted = diesel::delete(stocks.find(stock.id))
         .execute(con)
         .expect("Error deleting posts");
 
     println!("Deleted {} posts", num_deleted);
+
+    num_deleted
 }
 
 pub fn show_stock() -> Vec<Stock> {
