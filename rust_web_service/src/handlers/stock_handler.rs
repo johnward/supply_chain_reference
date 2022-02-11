@@ -295,10 +295,16 @@ mod tests {
         create_test_stocks_for_list_test().await;
         let mut app = test::init_service(App::new().service(stock_handler::stock_list)).await;
 
+        // let mut app =
+        //     test::init_service(App::new().service(
+        //         web::resource("/stock/list").route(web::get().to(stock_handler::stock_list)),
+        //     ))
+        //     .await;
+
         let payload = r#""#.as_bytes();
 
         let req = test::TestRequest::get()
-            .uri("http://localhost:8080/order/list")
+            .uri("http://localhost:8080/stock/list")
             .header("content-type", "application/json")
             .set_payload(payload)
             .to_request();
