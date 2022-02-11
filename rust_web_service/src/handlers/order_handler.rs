@@ -19,7 +19,7 @@ pub struct OrderInfo {
 ///            
 /// # Return type
 /// * HTTPResponse or Error
-/// 
+///
 pub async fn fulfill_order(data: web::Json<OrderInfo>) -> Result<HttpResponse, Error> {
     let fulfilled = complete_fulfill_order(data.id);
 
@@ -40,9 +40,9 @@ pub async fn fulfill_order(data: web::Json<OrderInfo>) -> Result<HttpResponse, E
 ///            
 /// # Return type
 /// * HTTPResponse or Error
-/// 
+///
 #[get("/order/list/{customer_id}")]
-async fn order_list(customer_id: web::Path<i32>) -> Result<impl Responder, Error> {
+pub async fn order_list(customer_id: web::Path<i32>) -> Result<impl Responder, Error> {
     let orders = show_orders(customer_id.into_inner());
     Ok(HttpResponse::Ok().json(orders))
 }
@@ -54,7 +54,7 @@ async fn order_list(customer_id: web::Path<i32>) -> Result<impl Responder, Error
 ///            
 /// # Return type
 /// * HTTPResponse or Error
-/// 
+///
 pub async fn order_create(mut payload: web::Payload) -> Result<HttpResponse, Error> {
     // payload is a stream of Bytes objects
     let mut body = web::BytesMut::new();
@@ -86,7 +86,7 @@ pub async fn order_create(mut payload: web::Payload) -> Result<HttpResponse, Err
 ///            
 /// # Return type
 /// * HTTPResponse or Error
-/// 
+///
 pub async fn order_cancel(mut payload: web::Payload) -> Result<HttpResponse, Error> {
     // payload is a stream of Bytes objects
     let mut body = web::BytesMut::new();
@@ -117,7 +117,7 @@ pub async fn order_cancel(mut payload: web::Payload) -> Result<HttpResponse, Err
 ///            
 /// # Return type
 /// * HTTPResponse or Error
-/// 
+///
 pub async fn order_update(mut payload: web::Payload) -> Result<HttpResponse, Error> {
     // payload is a stream of Bytes objects
     let mut body = web::BytesMut::new();

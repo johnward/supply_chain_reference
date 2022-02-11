@@ -1,7 +1,7 @@
 use crate::data::products::*;
 use crate::data::*;
 use crate::models::Product;
-use actix_web::{error, get, web, Error, HttpResponse, Responder};
+use actix_web::{error,  web, Error, HttpResponse, Responder};
 use futures::StreamExt;
 use serde_json;
 
@@ -11,9 +11,8 @@ use serde_json;
 ///            
 /// # Return type
 /// * Responder trait or Error
-/// 
-#[get("/product/list/")]
-async fn product_list() -> Result<impl Responder, Error> {
+///
+pub async fn product_list() -> Result<impl Responder, Error> {
     let products = show_products();
     Ok(HttpResponse::Ok().json(products))
 }
@@ -25,7 +24,7 @@ async fn product_list() -> Result<impl Responder, Error> {
 ///            
 /// # Return type
 /// * HTTPResponse or Error
-/// 
+///
 pub async fn product_create(mut payload: web::Payload) -> Result<HttpResponse, Error> {
     // payload is a stream of Bytes objects
     let mut body = web::BytesMut::new();
@@ -57,7 +56,7 @@ pub async fn product_create(mut payload: web::Payload) -> Result<HttpResponse, E
 ///            
 /// # Return type
 /// * HTTPResponse or Error
-/// 
+///
 pub async fn product_delete(mut payload: web::Payload) -> Result<HttpResponse, Error> {
     // payload is a stream of Bytes objects
     let mut body = web::BytesMut::new();
@@ -88,7 +87,7 @@ pub async fn product_delete(mut payload: web::Payload) -> Result<HttpResponse, E
 ///            
 /// # Return type
 /// * HTTPResponse or Error
-/// 
+///
 pub async fn product_update(mut payload: web::Payload) -> Result<HttpResponse, Error> {
     // payload is a stream of Bytes objects
     let mut body = web::BytesMut::new();
