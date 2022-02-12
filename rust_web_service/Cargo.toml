@@ -7,23 +7,14 @@ edition = "2018"
 
 [dependencies]
 futures = "0.3.19"
-futures-util = { version = "0.3", default-features = false }
 actix-web = "3"
 tokio = { version = "1", features = ["full"] }
-pretty_env_logger = "0.4"
 toml = "0.4"
 serde = "1.0"
 serde_derive = "1.0"
 serde_json = "1.0"
 log = "0.4"
 postgres = "0.19.0"
-tera = "1.8"
-slab = "0.4"
 diesel = { version = "1.4.4", features = ["postgres"] }
 dotenv = "0.15.0"
 actix-rt = "2.6.0"
-
-[dev-dependencies]
-hyper = { version = "0.14", features = ["full"] }
-tokio = { version = "1", features = ["full"] }
-futures = "0.3"
