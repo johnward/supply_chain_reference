@@ -82,6 +82,7 @@ pub async fn order_create(payload: web::Payload) -> Result<HttpResponse, Error> 
 /// * 'payload' - this contains the JSON body data for the new order
 ///            
 /// # Return type
+/// 
 /// * HTTPResponse or Error
 ///
 pub async fn order_cancel(payload: web::Payload) -> Result<HttpResponse, Error> {

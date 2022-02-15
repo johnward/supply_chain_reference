@@ -2,8 +2,7 @@ use crate::data::stock::*;
 use crate::data::*;
 use crate::handlers::core_handler::get_payload_bytes;
 use crate::models::{ReturnInfo, Stock};
-use actix_web::{error, web, Error, HttpResponse, Responder};
-use futures::StreamExt;
+use actix_web::{web, Error, HttpResponse, Responder};
 use serde_derive::{Deserialize, Serialize};
 use serde_json;
 

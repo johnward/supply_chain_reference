@@ -16,14 +16,10 @@ pub fn create_order<'a>(conn: &PgConnection, order: &'a Order) -> Order {
         address: order.address.clone(),
     };
 
-    let ret = diesel::insert_into(orders::table)
+    diesel::insert_into(orders::table)
         .values(&new_order)
         .get_result(conn)
-        .expect("Error saving new post");
-
-    println!("Ret: {:?}", ret);
-
-    ret
+        .expect("Error saving new post")
 }
 
 pub fn fulfill_order<'a>(con: &PgConnection, order_id: i32) -> Option<Order> {
@@ -37,21 +33,25 @@ pub fn fulfill_order<'a>(con: &PgConnection, order_id: i32) -> Option<Order> {
     Some(order)
 }
 
-pub fn update_order<'a>(con: &PgConnection, order: &'a Order) {
+pub fn update_order<'a>(con: &PgConnection, order: &'a Order) -> Order {
     let order = diesel::update(orders)
         .set(order)
         .get_result::<Order>(con)
         .expect(&format!("Unable to find post {}", order.id)); //.get_result();
 
     println!("Published post {}", order.id);
+
+    order
 }
 
-pub fn delete_order<'a>(con: &PgConnection, order: &'a Order) {
+pub fn delete_order<'a>(con: &PgConnection, order: &'a Order) -> usize {
     let num_deleted = diesel::delete(orders.find(order.id))
         .execute(con)
         .expect("Error deleting posts");
 
     println!("Deleted {} posts", num_deleted);
+
+    num_deleted
 }
 
 pub fn show_orders(customer_id_needed: i32) -> Vec<Order> {
