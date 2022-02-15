@@ -3,8 +3,7 @@ use crate::data::*;
 use crate::handlers::core_handler::get_payload_bytes;
 use crate::models::Order;
 use crate::order::complete_fulfill_order;
-use actix_web::{error, get, web, Error, HttpResponse, Responder};
-use futures::StreamExt;
+use actix_web::{get, web, Error, HttpResponse, Responder};
 use serde_derive::{Deserialize, Serialize};
 use serde_json;
 
@@ -43,7 +42,7 @@ pub async fn fulfill_order(data: web::Json<OrderInfo>) -> Result<HttpResponse, E
 /// * HTTPResponse or Error
 ///
 #[get("/order/list/{customer_id}")]
-async fn order_list(customer_id: web::Path<i32>) -> Result<impl Responder, Error> {
+pub async fn order_list(customer_id: web::Path<i32>) -> Result<impl Responder, Error> {
     let orders = show_orders(customer_id.into_inner());
     Ok(HttpResponse::Ok().json(orders))
 }

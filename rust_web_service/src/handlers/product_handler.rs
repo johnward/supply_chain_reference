@@ -2,8 +2,7 @@ use crate::data::products::*;
 use crate::data::*;
 use crate::handlers::core_handler::get_payload_bytes;
 use crate::models::Product;
-use actix_web::{error, get, web, Error, HttpResponse, Responder};
-use futures::StreamExt;
+use actix_web::{web, Error, HttpResponse, Responder};
 use serde_json;
 
 /// The endpoint to get a current list of all products
@@ -13,8 +12,7 @@ use serde_json;
 /// # Return type
 /// * Responder trait or Error
 ///
-#[get("/product/list/")]
-async fn product_list() -> Result<impl Responder, Error> {
+pub async fn product_list() -> Result<impl Responder, Error> {
     let products = show_products();
     Ok(HttpResponse::Ok().json(products))
 }
