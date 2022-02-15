@@ -1,5 +1,6 @@
 use crate::data::orders::*;
 use crate::data::*;
+use crate::handlers::core_handler::get_payload_bytes;
 use crate::models::Order;
 use crate::order::complete_fulfill_order;
 use actix_web::{error, get, web, Error, HttpResponse, Responder};
@@ -19,7 +20,7 @@ pub struct OrderInfo {
 ///            
 /// # Return type
 /// * HTTPResponse or Error
-/// 
+///
 pub async fn fulfill_order(data: web::Json<OrderInfo>) -> Result<HttpResponse, Error> {
     let fulfilled = complete_fulfill_order(data.id);
 
@@ -40,7 +41,7 @@ pub async fn fulfill_order(data: web::Json<OrderInfo>) -> Result<HttpResponse, E
 ///            
 /// # Return type
 /// * HTTPResponse or Error
-/// 
+///
 #[get("/order/list/{customer_id}")]
 async fn order_list(customer_id: web::Path<i32>) -> Result<impl Responder, Error> {
     let orders = show_orders(customer_id.into_inner());
@@ -54,29 +55,26 @@ async fn order_list(customer_id: web::Path<i32>) -> Result<impl Responder, Error
 ///            
 /// # Return type
 /// * HTTPResponse or Error
-/// 
-pub async fn order_create(mut payload: web::Payload) -> Result<HttpResponse, Error> {
-    // payload is a stream of Bytes objects
-    let mut body = web::BytesMut::new();
-    while let Some(chunk) = payload.next().await {
-        let chunk = chunk?;
-        // limit max size of in-memory payload
-        if (body.len() + chunk.len()) > crate::handlers::MAX_SIZE {
-            return Err(error::ErrorBadRequest("overflow"));
+///
+pub async fn order_create(payload: web::Payload) -> Result<HttpResponse, Error> {
+    // payload as bytes
+    let body = get_payload_bytes(payload).await;
+
+    match body {
+        Ok(b) => {
+            // body is loaded, now we can deserialize serde-json
+            let obj = serde_json::from_slice::<Order>(&b)?;
+            println!("Success");
+
+            let connection = get_connection();
+            let created_order = create_order(&connection, &obj);
+
+            //show_posts(false);
+
+            Ok(HttpResponse::Ok().json(created_order)) // <- send response
         }
-        body.extend_from_slice(&chunk);
+        Err(e) => Err(e),
     }
-
-    // body is loaded, now we can deserialize serde-json
-    let obj = serde_json::from_slice::<Order>(&body)?;
-    println!("Success");
-
-    let connection = get_connection();
-    let created_order = create_order(&connection, &obj);
-
-    //show_posts(false);
-
-    Ok(HttpResponse::Ok().json(created_order)) // <- send response
 }
 
 /// The endpoint to create a cancel an order which deletes it from the database
@@ -86,28 +84,25 @@ pub async fn order_create(mut payload: web::Payload) -> Result<HttpResponse, Err
 ///            
 /// # Return type
 /// * HTTPResponse or Error
-/// 
-pub async fn order_cancel(mut payload: web::Payload) -> Result<HttpResponse, Error> {
-    // payload is a stream of Bytes objects
-    let mut body = web::BytesMut::new();
-    while let Some(chunk) = payload.next().await {
-        let chunk = chunk?;
-        // limit max size of in-memory payload
-        if (body.len() + chunk.len()) > crate::handlers::MAX_SIZE {
-            return Err(error::ErrorBadRequest("overflow"));
+///
+pub async fn order_cancel(payload: web::Payload) -> Result<HttpResponse, Error> {
+    // payload as bytes
+    let body = get_payload_bytes(payload).await;
+
+    match body {
+        Ok(b) => {
+            // body is loaded, now we can deserialize serde-json
+            let obj = serde_json::from_slice::<Order>(&b)?;
+
+            // Delete Order
+            let connection = get_connection();
+            delete_order(&connection, &obj);
+
+            println!("Success");
+            Ok(HttpResponse::Ok().json(obj)) // <- send response
         }
-        body.extend_from_slice(&chunk);
+        Err(e) => Err(e),
     }
-
-    // body is loaded, now we can deserialize serde-json
-    let obj = serde_json::from_slice::<Order>(&body)?;
-
-    // Delete Order
-    let connection = get_connection();
-    delete_order(&connection, &obj);
-
-    println!("Success");
-    Ok(HttpResponse::Ok().json(obj)) // <- send response
 }
 
 /// The endpoint to update the information on a current order
@@ -117,26 +112,23 @@ pub async fn order_cancel(mut payload: web::Payload) -> Result<HttpResponse, Err
 ///            
 /// # Return type
 /// * HTTPResponse or Error
-/// 
-pub async fn order_update(mut payload: web::Payload) -> Result<HttpResponse, Error> {
-    // payload is a stream of Bytes objects
-    let mut body = web::BytesMut::new();
-    while let Some(chunk) = payload.next().await {
-        let chunk = chunk?;
-        // limit max size of in-memory payload
-        if (body.len() + chunk.len()) > crate::handlers::MAX_SIZE {
-            return Err(error::ErrorBadRequest("overflow"));
+///
+pub async fn order_update(payload: web::Payload) -> Result<HttpResponse, Error> {
+    // payload as bytes
+    let body = get_payload_bytes(payload).await;
+
+    match body {
+        Ok(b) => {
+            // body is loaded, now we can deserialize serde-json
+            let obj = serde_json::from_slice::<Order>(&b)?;
+
+            // Update Order
+            let connection = get_connection();
+            update_order(&connection, &obj);
+
+            println!("Success");
+            Ok(HttpResponse::Ok().json(obj)) // <- send response
         }
-        body.extend_from_slice(&chunk);
+        Err(e) => Err(e),
     }
-
-    // body is loaded, now we can deserialize serde-json
-    let obj = serde_json::from_slice::<Order>(&body)?;
-
-    // Update Order
-    let connection = get_connection();
-    update_order(&connection, &obj);
-
-    println!("Success");
-    Ok(HttpResponse::Ok().json(obj)) // <- send response
 }

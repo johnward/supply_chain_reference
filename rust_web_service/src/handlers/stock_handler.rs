@@ -1,5 +1,6 @@
 use crate::data::stock::*;
 use crate::data::*;
+use crate::handlers::core_handler::get_payload_bytes;
 use crate::models::{ReturnInfo, Stock};
 use actix_web::{error, get, web, Error, HttpResponse, Responder};
 use futures::StreamExt;
@@ -33,28 +34,25 @@ pub async fn stock_list() -> Result<impl Responder, Error> {
 /// # Return type
 /// * HTTPResponse or Error
 ///
-pub async fn stock_create(mut payload: web::Payload) -> Result<HttpResponse, Error> {
-    // payload is a stream of Bytes objects
-    let mut body = web::BytesMut::new();
-    while let Some(chunk) = payload.next().await {
-        let chunk = chunk?;
-        // limit max size of in-memory payload
-        if (body.len() + chunk.len()) > crate::handlers::MAX_SIZE {
-            return Err(error::ErrorBadRequest("overflow"));
+pub async fn stock_create(payload: web::Payload) -> Result<HttpResponse, Error> {
+    // payload as bytes
+    let body = get_payload_bytes(payload).await;
+
+    match body {
+        Ok(b) => {
+            // body is loaded, now we can deserialize serde-json
+            let obj = serde_json::from_slice::<Stock>(&b)?;
+            println!("Success");
+
+            let connection = get_connection();
+            let created_stock = create_stock(&connection, &obj);
+
+            println!("Success");
+
+            Ok(HttpResponse::Ok().json(created_stock)) // <- send response
         }
-        body.extend_from_slice(&chunk);
+        Err(e) => Err(e),
     }
-
-    // body is loaded, now we can deserialize serde-json
-    let obj = serde_json::from_slice::<Stock>(&body)?;
-    println!("Success");
-
-    let connection = get_connection();
-    let created_stock = create_stock(&connection, &obj);
-
-    println!("Success");
-
-    Ok(HttpResponse::Ok().json(created_stock)) // <- send response
 }
 
 /// The endpoint to delete a stock balance
@@ -65,30 +63,27 @@ pub async fn stock_create(mut payload: web::Payload) -> Result<HttpResponse, Err
 /// # Return type
 /// * HTTPResponse or Error
 ///
-pub async fn stock_delete(mut payload: web::Payload) -> Result<HttpResponse, Error> {
-    // payload is a stream of Bytes objects
-    let mut body = web::BytesMut::new();
-    while let Some(chunk) = payload.next().await {
-        let chunk = chunk?;
-        // limit max size of in-memory payload
-        if (body.len() + chunk.len()) > crate::handlers::MAX_SIZE {
-            return Err(error::ErrorBadRequest("overflow"));
+pub async fn stock_delete(payload: web::Payload) -> Result<HttpResponse, Error> {
+    // payload as bytes
+    let body = get_payload_bytes(payload).await;
+
+    match body {
+        Ok(b) => {
+            // body is loaded, now we can deserialize serde-json
+            let obj = serde_json::from_slice::<Stock>(&b)?;
+
+            // Delete Order
+            let connection = get_connection();
+            let num_delete = delete_stock(&connection, &obj);
+
+            let return_info = ReturnInfo { amount: num_delete };
+
+            println!("Success");
+
+            Ok(HttpResponse::Ok().json(return_info)) // <- send response
         }
-        body.extend_from_slice(&chunk);
+        Err(e) => Err(e),
     }
-
-    // body is loaded, now we can deserialize serde-json
-    let obj = serde_json::from_slice::<Stock>(&body)?;
-
-    // Delete Order
-    let connection = get_connection();
-    let num_delete = delete_stock(&connection, &obj);
-
-    let return_info = ReturnInfo { amount: num_delete };
-
-    println!("Success");
-
-    Ok(HttpResponse::Ok().json(return_info)) // <- send response
 }
 
 /// The endpoint to update a stock balance
@@ -99,27 +94,24 @@ pub async fn stock_delete(mut payload: web::Payload) -> Result<HttpResponse, Err
 /// # Return type
 /// * HTTPResponse or Error
 ///
-pub async fn stock_update(mut payload: web::Payload) -> Result<HttpResponse, Error> {
-    // payload is a stream of Bytes objects
-    let mut body = web::BytesMut::new();
-    while let Some(chunk) = payload.next().await {
-        let chunk = chunk?;
-        // limit max size of in-memory payload
-        if (body.len() + chunk.len()) > crate::handlers::MAX_SIZE {
-            return Err(error::ErrorBadRequest("overflow"));
+pub async fn stock_update(payload: web::Payload) -> Result<HttpResponse, Error> {
+    // payload as bytes
+    let body = get_payload_bytes(payload).await;
+
+    match body {
+        Ok(b) => {
+            // body is loaded, now we can deserialize serde-json
+            let obj = serde_json::from_slice::<Stock>(&b)?;
+
+            // Update Order
+            let connection = get_connection();
+            let stock = update_stock(&connection, &obj);
+
+            println!("Success");
+            Ok(HttpResponse::Ok().json(stock)) // <- send response
         }
-        body.extend_from_slice(&chunk);
+        Err(e) => Err(e),
     }
-
-    // body is loaded, now we can deserialize serde-json
-    let obj = serde_json::from_slice::<Stock>(&body)?;
-
-    // Update Order
-    let connection = get_connection();
-    let stock = update_stock(&connection, &obj);
-
-    println!("Success");
-    Ok(HttpResponse::Ok().json(stock)) // <- send response
 }
 
 #[cfg(test)]
