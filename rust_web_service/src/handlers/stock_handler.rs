@@ -1,4 +1,4 @@
-use crate::handlers::core_handler::get_payload_bytes;
+use crate::api::core_handler::get_payload_bytes;
 use crate::models::Stock;
 use crate::services::stock_service::*;
 use actix_web::{error, web, Error, HttpResponse, Responder};
@@ -116,7 +116,7 @@ pub async fn stock_update(payload: web::Payload) -> Result<HttpResponse, Error> 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::handlers::stock_handler;
+    use crate::api::stock_handler;
     use crate::models::{ReturnInfo, Stock};
     use actix_web::{test, web, App};
 

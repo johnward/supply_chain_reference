@@ -13,16 +13,24 @@ pub fn get_stock() -> Vec<Stock> {
 /// The endpoint to create a new stock balance
 /// # Arguments
 ///
-/// * 'payload' - this contains the JSON body data for the new stock
+/// * 'stock'
 ///            
 /// # Return type
-/// * HTTPResponse or Error
+/// * pub fn create_stock<'a>(stock: &'a Stock) -> Stock {
 ///
 pub fn create_stock<'a>(stock: &'a Stock) -> Stock {
     let connection = get_connection();
     stock::create_stock(&connection, &stock)
 }
 
+/// The endpoint to delete stock balance
+/// # Arguments
+///
+/// * 'stock'
+///            
+/// # Return type
+/// * pub fn create_stock<'a>(stock: &'a Stock) -> Stock {
+///
 pub fn delete_stock<'a>(stock: &'a Stock) -> ReturnInfo {
     // Delete Order
     let connection = get_connection();

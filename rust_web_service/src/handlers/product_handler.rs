@@ -1,4 +1,4 @@
-use crate::handlers::core_handler::get_payload_bytes;
+use crate::api::core_handler::get_payload_bytes;
 use crate::models::Product;
 use crate::services::product_service::*;
 use actix_web::{web, Error, HttpResponse, Responder};

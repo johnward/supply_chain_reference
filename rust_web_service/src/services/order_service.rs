@@ -9,10 +9,10 @@ pub fn show_orders(customer_id_needed: i32) -> Vec<Order> {
 /// The endpoint to to create a new order for a perticular customer
 /// # Arguments
 ///
-/// * 'payload' - this contains the JSON body data for the new order
+/// * 'order' - this contains the JSON body data for the new order
 ///            
 /// # Return type
-/// * HTTPResponse or Error
+/// * Order - Order created
 ///
 pub fn create_order<'a>(order: &'a Order) -> Order {
     // Create a database connection
@@ -25,11 +25,11 @@ pub fn create_order<'a>(order: &'a Order) -> Order {
 /// The endpoint to create a cancel an order which deletes it from the database
 /// # Arguments
 ///
-/// * 'payload' - this contains the JSON body data for the new order
+/// * 'order' - Order to delete
 ///            
 /// # Return type
 ///
-/// * HTTPResponse or Error
+/// * usize - number of orders deleted
 ///
 pub fn delete_order<'a>(order: &'a Order) -> usize {
     // Delete Order
@@ -42,10 +42,10 @@ pub fn delete_order<'a>(order: &'a Order) -> usize {
 /// The endpoint to update the information on a current order
 /// # Arguments
 ///
-/// * 'payload' - this contains the JSON body data for the new order
+/// * 'order' - Order to update
 ///            
 /// # Return type
-/// * HTTPResponse or Error
+/// * Order
 ///
 pub fn update_order<'a>(order: &'a Order) -> Order {
     // Get the data connection

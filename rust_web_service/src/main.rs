@@ -2,8 +2,8 @@
 extern crate diesel;
 extern crate dotenv;
 
+mod api;
 mod data;
-mod handlers;
 mod models;
 mod schema;
 mod services;

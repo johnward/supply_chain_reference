@@ -15,10 +15,10 @@ pub fn show_products() -> Vec<Product> {
 /// The endpoint to create a new product
 /// # Arguments
 ///
-/// * 'payload' - this contains the JSON body data for the new product
+/// * 'product'
 ///            
 /// # Return type
-/// * HTTPResponse or Error
+/// * Product
 ///
 pub fn create_product<'a>(product: &'a Product) -> Product {
     // Create product business logic here,
@@ -36,10 +36,9 @@ pub fn create_product<'a>(product: &'a Product) -> Product {
 /// The endpoint to delete a new product
 /// # Arguments
 ///
-/// * 'payload' - this contains the JSON body data for the new product to delete
+/// * 'product'
 ///            
 /// # Return type
-/// * HTTPResponse or Error
 ///
 pub fn delete_product<'a>(product: &'a Product) {
     // Get the appropiate connection
@@ -52,10 +51,9 @@ pub fn delete_product<'a>(product: &'a Product) {
 /// The endpoint to update a new product
 /// # Arguments
 ///
-/// * 'payload' - this contains the JSON body data for the new product to update
+/// * 'product' -
 ///            
 /// # Return type
-/// * HTTPResponse or Error
 ///
 pub fn update_product<'a>(product: &'a Product) {
     // Get the data interface connection
