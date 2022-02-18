@@ -20,12 +20,6 @@ impl ServerConfig {
     }
 }
 
-// trait Service {
-//     fn start_service() -> std::io::Result<()>;
-
-//     fn stop_service() -> std::io::Result<()>;
-// }
-
 pub struct WebService {
     config: ServerConfig,
 }

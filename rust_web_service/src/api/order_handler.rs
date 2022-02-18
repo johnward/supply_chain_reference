@@ -72,6 +72,33 @@ pub async fn order_create(payload: web::Payload) -> Result<HttpResponse, Error> 
     }
 }
 
+/// The endpoint to update the information on a current order
+/// # Arguments
+///
+/// * 'payload' - this contains the JSON body data for the new order
+///            
+/// # Return type
+/// * HTTPResponse or Error
+///
+pub async fn order_update(payload: web::Payload) -> Result<HttpResponse, Error> {
+    // payload as bytes
+    let body = get_payload_bytes(payload).await;
+
+    match body {
+        Ok(b) => {
+            // body is loaded, now we can deserialize serde-json
+            let obj = serde_json::from_slice::<Order>(&b)?;
+
+            // Call the update order service function
+            update_order(&obj);
+
+            // Now send a response
+            Ok(HttpResponse::Ok().json(obj)) // <- send response
+        }
+        Err(e) => Err(e),
+    }
+}
+
 /// The endpoint to create a cancel an order which deletes it from the database
 /// # Arguments
 ///
@@ -94,33 +121,6 @@ pub async fn order_cancel(payload: web::Payload) -> Result<HttpResponse, Error> 
             delete_order(&obj);
 
             // Now return a response
-            Ok(HttpResponse::Ok().json(obj)) // <- send response
-        }
-        Err(e) => Err(e),
-    }
-}
-
-/// The endpoint to update the information on a current order
-/// # Arguments
-///
-/// * 'payload' - this contains the JSON body data for the new order
-///            
-/// # Return type
-/// * HTTPResponse or Error
-///
-pub async fn order_update(payload: web::Payload) -> Result<HttpResponse, Error> {
-    // payload as bytes
-    let body = get_payload_bytes(payload).await;
-
-    match body {
-        Ok(b) => {
-            // body is loaded, now we can deserialize serde-json
-            let obj = serde_json::from_slice::<Order>(&b)?;
-
-            // Call the update order service function
-            update_order(&obj);
-
-            // Now send a response
             Ok(HttpResponse::Ok().json(obj)) // <- send response
         }
         Err(e) => Err(e),
