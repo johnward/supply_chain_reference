@@ -29,6 +29,15 @@ pub async fn get_payload_bytes(mut payload: web::Payload) -> Result<web::BytesMu
     Ok(body)
 }
 
+/// Generic end point for create, update and delete
+/// # Arguments
+///
+/// * 'payload' - the payload received from the HTTP request
+/// * 'func' - the function to call
+///            
+/// # Return type
+/// * HTTPResponse or Error
+///
 pub async fn object_crud<T, U>(
     payload: web::Payload,
     func: &dyn Fn(&T) -> U,
@@ -47,16 +56,6 @@ where
 
             // Call the stock service function to create stock
             let created_stock = func(&obj);
-
-            // let created_stock = Order {
-            //     id: 0,
-            //     product_name: String::from("FFF"),
-            //     product_id: 0,
-            //     customer_id: 0,
-            //     amount: 0,
-            //     address: String::from("HEEE"),
-            //     fulfilled: false,
-            // };
 
             // Now send back the response
             Ok(HttpResponse::Ok().json(created_stock))
