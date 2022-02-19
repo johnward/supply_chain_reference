@@ -1,9 +1,7 @@
-use crate::api::core_handler::get_payload_bytes;
-use crate::models::Order;
+use crate::api::core_handler::object_crud;
 use crate::services::order_service::*;
 use actix_web::{get, web, Error, HttpResponse, Responder};
 use serde_derive::{Deserialize, Serialize};
-use serde_json;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct OrderInfo {
@@ -53,23 +51,10 @@ pub async fn order_list(customer_id: web::Path<i32>) -> Result<impl Responder, E
 /// # Return type
 /// * HTTPResponse or Error
 ///
+
 pub async fn order_create(payload: web::Payload) -> Result<HttpResponse, Error> {
     // payload as bytes
-    let body = get_payload_bytes(payload).await;
-
-    match body {
-        Ok(b) => {
-            // body is loaded, now we can deserialize serde-json
-            let obj = serde_json::from_slice::<Order>(&b)?;
-
-            // Call the create order service function
-            let created_order = create_order(&obj);
-
-            // Return a response
-            Ok(HttpResponse::Ok().json(created_order)) // <- send response
-        }
-        Err(e) => Err(e),
-    }
+    object_crud(payload, &create_order).await
 }
 
 /// The endpoint to update the information on a current order
@@ -81,22 +66,7 @@ pub async fn order_create(payload: web::Payload) -> Result<HttpResponse, Error> 
 /// * HTTPResponse or Error
 ///
 pub async fn order_update(payload: web::Payload) -> Result<HttpResponse, Error> {
-    // payload as bytes
-    let body = get_payload_bytes(payload).await;
-
-    match body {
-        Ok(b) => {
-            // body is loaded, now we can deserialize serde-json
-            let obj = serde_json::from_slice::<Order>(&b)?;
-
-            // Call the update order service function
-            update_order(&obj);
-
-            // Now send a response
-            Ok(HttpResponse::Ok().json(obj)) // <- send response
-        }
-        Err(e) => Err(e),
-    }
+    object_crud(payload, &update_order).await
 }
 
 /// The endpoint to create a cancel an order which deletes it from the database
@@ -109,20 +79,5 @@ pub async fn order_update(payload: web::Payload) -> Result<HttpResponse, Error> 
 /// * HTTPResponse or Error
 ///
 pub async fn order_cancel(payload: web::Payload) -> Result<HttpResponse, Error> {
-    // payload as bytes
-    let body = get_payload_bytes(payload).await;
-
-    match body {
-        Ok(b) => {
-            // body is loaded, now we can deserialize serde-json
-            let obj = serde_json::from_slice::<Order>(&b)?;
-
-            // Call delete order service function
-            delete_order(&obj);
-
-            // Now return a response
-            Ok(HttpResponse::Ok().json(obj)) // <- send response
-        }
-        Err(e) => Err(e),
-    }
+    object_crud(payload, &delete_order).await
 }

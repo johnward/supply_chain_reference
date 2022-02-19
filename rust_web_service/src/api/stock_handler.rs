@@ -1,9 +1,7 @@
-use crate::api::core_handler::get_payload_bytes;
-use crate::models::Stock;
+use crate::api::core_handler::object_crud;
 use crate::services::stock_service::*;
 use actix_web::{error, web, Error, HttpResponse, Responder};
 use serde_derive::{Deserialize, Serialize};
-use serde_json;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct StockIncr {
@@ -41,22 +39,7 @@ pub async fn stock_list() -> Result<impl Responder, Error> {
 /// * HTTPResponse or Error
 ///
 pub async fn stock_create(payload: web::Payload) -> Result<HttpResponse, Error> {
-    // payload as bytes
-    let body = get_payload_bytes(payload).await;
-
-    match body {
-        Ok(b) => {
-            // body is loaded, now we can deserialize serde-json
-            let obj = serde_json::from_slice::<Stock>(&b)?;
-
-            // Call the stock service function to create stock
-            let created_stock = create_stock(&obj);
-
-            // Now send back the response
-            Ok(HttpResponse::Ok().json(created_stock))
-        }
-        Err(e) => Err(e),
-    }
+    object_crud(payload, &create_stock).await
 }
 
 /// The endpoint to delete a stock balance
@@ -68,22 +51,7 @@ pub async fn stock_create(payload: web::Payload) -> Result<HttpResponse, Error> 
 /// * HTTPResponse or Error
 ///
 pub async fn stock_delete(payload: web::Payload) -> Result<HttpResponse, Error> {
-    // payload as bytes
-    let body = get_payload_bytes(payload).await;
-
-    match body {
-        Ok(b) => {
-            // body is loaded, now we can deserialize serde-json
-            let obj = serde_json::from_slice::<Stock>(&b)?;
-
-            // Delete Order
-            let return_info = delete_stock(&obj);
-
-            // Now send the response
-            Ok(HttpResponse::Ok().json(return_info)) // <- send response
-        }
-        Err(e) => Err(e),
-    }
+    object_crud(payload, &delete_stock).await
 }
 
 /// The endpoint to update a stock balance
@@ -95,22 +63,7 @@ pub async fn stock_delete(payload: web::Payload) -> Result<HttpResponse, Error> 
 /// * HTTPResponse or Error
 ///
 pub async fn stock_update(payload: web::Payload) -> Result<HttpResponse, Error> {
-    // payload as bytes
-    let body = get_payload_bytes(payload).await;
-
-    match body {
-        Ok(b) => {
-            // body is loaded, now we can deserialize serde-json
-            let obj = serde_json::from_slice::<Stock>(&b)?;
-
-            // Call the update stock service function
-            let stock = update_stock(&obj);
-
-            // Now send the response
-            Ok(HttpResponse::Ok().json(stock)) // <- send response
-        }
-        Err(e) => Err(e),
-    }
+    object_crud(payload, &update_stock).await
 }
 
 #[cfg(test)]

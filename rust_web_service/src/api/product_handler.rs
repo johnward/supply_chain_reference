@@ -1,8 +1,6 @@
-use crate::api::core_handler::get_payload_bytes;
-use crate::models::Product;
+use crate::api::core_handler::object_crud;
 use crate::services::product_service::*;
 use actix_web::{web, Error, HttpResponse, Responder};
-use serde_json;
 
 /// The endpoint to get a current list of all products
 /// # Arguments
@@ -25,22 +23,7 @@ pub async fn product_list() -> Result<impl Responder, Error> {
 /// * HTTPResponse or Error
 ///
 pub async fn product_create(payload: web::Payload) -> Result<HttpResponse, Error> {
-    // payload as bytes
-    let body = get_payload_bytes(payload).await;
-
-    match body {
-        Ok(b) => {
-            // body is loaded, now we can deserialize serde-json
-            let obj = serde_json::from_slice::<Product>(&b)?;
-
-            // Call the create product service function
-            let created_product = create_product(&obj);
-
-            // Now return a response
-            Ok(HttpResponse::Ok().json(created_product)) // <- send response
-        }
-        Err(e) => Err(e),
-    }
+    object_crud(payload, &create_product).await
 }
 
 /// The endpoint to delete a new product
@@ -52,22 +35,7 @@ pub async fn product_create(payload: web::Payload) -> Result<HttpResponse, Error
 /// * HTTPResponse or Error
 ///
 pub async fn product_delete(payload: web::Payload) -> Result<HttpResponse, Error> {
-    // payload as bytes
-    let body = get_payload_bytes(payload).await;
-
-    match body {
-        Ok(b) => {
-            // body is loaded, now we can deserialize serde-json
-            let obj = serde_json::from_slice::<Product>(&b)?;
-
-            // Call the delete product service function
-            delete_product(&obj);
-
-            // Now return a response
-            Ok(HttpResponse::Ok().json(obj)) // <- send response
-        }
-        Err(e) => Err(e),
-    }
+    object_crud(payload, &delete_product).await
 }
 
 /// The endpoint to update a new product
@@ -79,20 +47,5 @@ pub async fn product_delete(payload: web::Payload) -> Result<HttpResponse, Error
 /// * HTTPResponse or Error
 ///
 pub async fn product_update(payload: web::Payload) -> Result<HttpResponse, Error> {
-    // payload as bytes
-    let body = get_payload_bytes(payload).await;
-
-    match body {
-        Ok(b) => {
-            // body is loaded, now we can deserialize serde-json
-            let obj = serde_json::from_slice::<Product>(&b)?;
-
-            // Call the update product service
-            update_product(&obj);
-
-            // Now return a response
-            Ok(HttpResponse::Ok().json(obj)) // <- send response
-        }
-        Err(e) => Err(e),
-    }
+    object_crud(payload, &update_product).await
 }
