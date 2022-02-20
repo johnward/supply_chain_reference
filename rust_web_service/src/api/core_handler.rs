@@ -55,10 +55,10 @@ where
             let obj = serde_json::from_slice::<T>(&bytes)?;
 
             // Call the stock service function to create stock
-            let created_stock = func(&obj);
+            let obj_to_return = func(&obj);
 
             // Now send back the response
-            Ok(HttpResponse::Ok().json(created_stock))
+            Ok(HttpResponse::Ok().json(obj_to_return))
         }
         Err(e) => Err(e),
     }
