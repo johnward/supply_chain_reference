@@ -1,9 +1,9 @@
 use crate::api::core_handler::object_crud;
 use crate::services::order_service::*;
 use actix_web::{get, web, Error, HttpResponse, Responder};
-use serde_derive::{Deserialize, Serialize};
+use serde_derive::Deserialize;
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Deserialize, Debug)]
 pub struct OrderInfo {
     id: i32,
 }
