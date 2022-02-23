@@ -15,7 +15,6 @@ impl fmt::Display for ServiceError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match &self.error {
             InfoNotFound(m) => write!(f, "Service Error: {{ Error Message: {}, }}", m),
-            _ => write!(f, "Service Error: General Error"),
         }
     }
 }

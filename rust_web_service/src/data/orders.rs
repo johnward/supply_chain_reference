@@ -22,15 +22,14 @@ pub fn create_order<'a>(conn: &PgConnection, order: &'a Order) -> Result<Order, 
         .get_result(conn)
 }
 
-pub fn fulfill_order<'a>(con: &PgConnection, order_id: i32) -> Option<Order> {
+pub fn fulfill_order<'a>(con: &PgConnection, order_id: i32) -> Result<Order, Error> {
     let order = diesel::update(orders.find(order_id))
         .set(fulfilled.eq(true))
-        .get_result::<Order>(con)
-        .expect(&format!("Unable to find post {}", order_id)); //.get_result();
+        .get_result::<Order>(con);
 
-    println!("Published post {}", order.id);
+    println!("Published post {:?}", order.as_ref());
 
-    Some(order)
+    order
 }
 
 pub fn update_order<'a>(con: &PgConnection, order: &'a Order) -> Result<Order, Error> {
@@ -66,4 +65,15 @@ pub fn show_orders(customer_id_needed: i32) -> Result<Vec<Order>, Error> {
     // }
 
     results
+}
+
+pub fn get_orders(con: &PgConnection, order_id_needed: i32) -> Result<Order, Error> {
+    match orders
+        .filter(id.eq(order_id_needed))
+        .limit(5)
+        .load::<Order>(con)
+    {
+        Ok(o) => Ok(o[0].clone()),
+        Err(e) => Err(e),
+    }
 }

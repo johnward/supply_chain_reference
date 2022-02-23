@@ -96,31 +96,46 @@ pub fn update_order<'a>(order: &'a Order) -> Result<Order, ServiceError> {
 ///            
 /// result = complete_fulfill_order(order.id);
 ///
-pub fn complete_fulfill_order(id: i32) -> Result<(), ()> {
+pub fn complete_fulfill_order(id: i32) -> Result<Order, ServiceError> {
     let connection = get_connection();
 
-    // Get Order amount
-    let order = orders::fulfill_order(&connection, id);
+    // Get Order to fulfill
+    let order = orders::get_orders(&connection, id);
 
-    let result = match order {
-        Some(o) => {
+    match order {
+        Ok(current_order) => {
             let stocks = get_stock(&connection, id);
 
-            if stocks.len() == 1 {
-                // if order amount is <= stock amount
-
-                if o.amount <= stocks[0].amount {
-                    //      Decrement stock amount by order amount
-                    increment_stock(&connection, stocks[0].id, stocks[0].amount);
-
-                    //      Set order to fulfilled.
-                    orders::fulfill_order(&connection, o.id);
+            match stocks {
+                Ok(stocks) => {
+                    // if order amount is <= stock amount
+                    if stocks.len() == 1 && current_order.amount <= stocks[0].amount {
+                        //      Decrement stock amount by order amount
+                        match increment_stock(&connection, stocks[0].id, stocks[0].amount) {
+                            Ok(_s) => match orders::fulfill_order(&connection, current_order.id) {
+                                Ok(order) => Ok(order),
+                                Err(error) => create_error(ServiceErrorTypes::InfoNotFound(
+                                    format!("Error Updating Orders {}", error.to_string()),
+                                )),
+                            },
+                            Err(error) => create_error(ServiceErrorTypes::InfoNotFound(format!(
+                                "Not Found {}",
+                                error.to_string()
+                            ))),
+                        }
+                    } else {
+                        create_error(ServiceErrorTypes::InfoNotFound(String::from("Not Found")))
+                    }
                 }
+                Err(error) => create_error(ServiceErrorTypes::InfoNotFound(format!(
+                    "Not Found {}",
+                    error.to_string()
+                ))),
             }
-            Ok(())
         }
-        None => Err(()),
-    };
-
-    result
+        Err(error) => create_error(ServiceErrorTypes::InfoNotFound(format!(
+            "Not Found {}",
+            error.to_string()
+        ))),
+    }
 }

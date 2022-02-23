@@ -3,7 +3,7 @@ use super::schema::products;
 use super::schema::stocks;
 use serde_derive::{Deserialize, Serialize};
 
-#[derive(Queryable, AsChangeset, Debug, Serialize, Deserialize)]
+#[derive(Clone, Queryable, AsChangeset, Debug, Serialize, Deserialize)]
 pub struct Order {
     pub id: i32,
     pub product_name: String,
