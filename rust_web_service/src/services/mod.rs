@@ -3,7 +3,7 @@ use serde::Serialize;
 use std::fmt;
 
 #[derive(Debug, Serialize)]
-struct ServiceError {
+pub struct ServiceError {
     //code: usize,
     //message: String,
     error: ServiceErrorTypes,

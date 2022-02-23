@@ -4,8 +4,9 @@ use crate::schema;
 use crate::schema::orders::dsl::*;
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
+use diesel::result::Error;
 
-pub fn create_order<'a>(conn: &PgConnection, order: &'a Order) -> Order {
+pub fn create_order<'a>(conn: &PgConnection, order: &'a Order) -> Result<Order, Error> {
     use schema::orders;
 
     let new_order = NewOrder {
@@ -19,7 +20,6 @@ pub fn create_order<'a>(conn: &PgConnection, order: &'a Order) -> Order {
     diesel::insert_into(orders::table)
         .values(&new_order)
         .get_result(conn)
-        .expect("Error saving new post")
 }
 
 pub fn fulfill_order<'a>(con: &PgConnection, order_id: i32) -> Option<Order> {
@@ -33,34 +33,30 @@ pub fn fulfill_order<'a>(con: &PgConnection, order_id: i32) -> Option<Order> {
     Some(order)
 }
 
-pub fn update_order<'a>(con: &PgConnection, order: &'a Order) -> Order {
-    let order = diesel::update(orders)
-        .set(order)
-        .get_result::<Order>(con)
-        .expect(&format!("Unable to find post {}", order.id)); //.get_result();
+pub fn update_order<'a>(con: &PgConnection, order: &'a Order) -> Result<Order, Error> {
+    let order = diesel::update(orders).set(order).get_result::<Order>(con);
 
-    println!("Published post {}", order.id);
+    // For debug
+    println!("Published post {:?}", order.as_ref());
 
     order
 }
 
-pub fn delete_order<'a>(con: &PgConnection, order: &'a Order) -> usize {
-    let num_deleted = diesel::delete(orders.find(order.id))
-        .execute(con)
-        .expect("Error deleting posts");
+pub fn delete_order<'a>(con: &PgConnection, order: &'a Order) -> Result<usize, Error> {
+    let num_deleted = diesel::delete(orders.find(order.id)).execute(con);
 
-    println!("Deleted {} posts", num_deleted);
+    // For debug
+    println!("Deleted {:?} posts", num_deleted.as_ref());
 
     num_deleted
 }
 
-pub fn show_orders(customer_id_needed: i32) -> Vec<Order> {
+pub fn show_orders(customer_id_needed: i32) -> Result<Vec<Order>, Error> {
     let connection = get_connection();
     let results = orders
         .filter(customer_id.eq(customer_id_needed))
         .limit(5)
-        .load::<Order>(&connection)
-        .expect("Error loading posts");
+        .load::<Order>(&connection);
 
     // println!("Displaying {} posts", results.len());
     // for post in results {
