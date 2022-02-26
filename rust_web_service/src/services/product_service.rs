@@ -28,13 +28,14 @@ pub fn show_products() -> Result<Vec<Product>, ServiceError> {
 /// * Product
 ///
 pub fn create_product<'a>(product: &'a Product) -> Result<Product, ServiceError> {
+    let connection = get_connection();
+
     // Create product business logic here,
 
     // Potentially search cache first.
 
     // Call the product service
-    //let product = products::create_product(&product);
-    let product = match products::create_product(&product) {
+    let product = match products::create_product(&connection, &product) {
         Ok(order) => Ok(order),
         Err(error) => create_error(ServiceErrorTypes::InfoNotFound(format!(
             "Error Creating Products {}",
