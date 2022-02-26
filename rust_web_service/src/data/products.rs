@@ -1,8 +1,6 @@
-use crate::data::get_connection;
 use crate::models::{NewProduct, Product};
 use crate::schema;
 use crate::schema::products::dsl::*;
-use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use diesel::result::Error;
 use schema::products;
@@ -44,9 +42,8 @@ pub fn delete_product<'a>(con: &PgConnection, product: &'a Product) -> Result<us
     num_deleted
 }
 
-pub fn show_products() -> Result<Vec<Product>, Error> {
-    let connection = get_connection();
-    let results = products.limit(10).load::<Product>(&connection);
+pub fn show_products(conn: &PgConnection) -> Result<Vec<Product>, Error> {
+    let results = products.limit(10).load::<Product>(conn);
 
     // println!("Displaying {} posts", results.len());
     // for post in results {

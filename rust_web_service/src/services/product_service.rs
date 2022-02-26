@@ -10,7 +10,9 @@ use crate::services::{create_error, ServiceError, ServiceErrorTypes};
 /// * Responder trait or Error
 ///
 pub fn show_products() -> Result<Vec<Product>, ServiceError> {
-    match products::show_products() {
+    let connection = get_connection();
+
+    match products::show_products(&connection) {
         Ok(product) => Ok(product),
         Err(error) => create_error(ServiceErrorTypes::InfoNotFound(format!(
             "Error Finding Products {}",
