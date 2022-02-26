@@ -39,7 +39,7 @@ pub fn create_stock<'a>(conn: &PgConnection, stock: &'a Stock) -> Result<Stock, 
 /// use doc::Person;
 /// let person = Person::new("name");
 /// ```
-pub fn increment_stock<'a>(
+pub fn increment_stock(
     con: &PgConnection,
     stock_id: i32,
     amount_change: i32,
