@@ -4,7 +4,9 @@ use crate::models::Order;
 use crate::services::{create_error, ServiceError, ServiceErrorTypes};
 
 pub fn show_orders(customer_id_needed: i32) -> Result<Vec<Order>, ServiceError> {
-    match orders::show_orders(customer_id_needed) {
+    let connection = get_connection();
+
+    match orders::show_orders(&connection, customer_id_needed) {
         Ok(order) => Ok(order),
         Err(error) => create_error(ServiceErrorTypes::InfoNotFound(format!(
             "Error Finding Orders {}",

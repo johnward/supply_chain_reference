@@ -1,14 +1,11 @@
-use crate::data::get_connection;
 use crate::models::{NewOrder, Order};
 use crate::schema;
 use crate::schema::orders::dsl::*;
-use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use diesel::result::Error;
+use schema::orders;
 
 pub fn create_order<'a>(conn: &PgConnection, order: &'a Order) -> Result<Order, Error> {
-    use schema::orders;
-
     let new_order = NewOrder {
         product_name: order.product_name.clone(),
         product_id: order.product_id,
@@ -33,7 +30,9 @@ pub fn fulfill_order<'a>(con: &PgConnection, order_id: i32) -> Result<Order, Err
 }
 
 pub fn update_order<'a>(con: &PgConnection, order: &'a Order) -> Result<Order, Error> {
-    let order = diesel::update(orders).set(order).get_result::<Order>(con);
+    let order = diesel::update(orders::table)
+        .set(order)
+        .get_result::<Order>(con);
 
     // For debug
     println!("Published post {:?}", order.as_ref());
@@ -50,12 +49,11 @@ pub fn delete_order<'a>(con: &PgConnection, order: &'a Order) -> Result<usize, E
     num_deleted
 }
 
-pub fn show_orders(customer_id_needed: i32) -> Result<Vec<Order>, Error> {
-    let connection = get_connection();
+pub fn show_orders(con: &PgConnection, customer_id_needed: i32) -> Result<Vec<Order>, Error> {
     let results = orders
         .filter(customer_id.eq(customer_id_needed))
         .limit(5)
-        .load::<Order>(&connection);
+        .load::<Order>(con);
 
     // println!("Displaying {} posts", results.len());
     // for post in results {
