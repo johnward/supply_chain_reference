@@ -7,10 +7,18 @@ pub mod orders;
 pub mod products;
 pub mod stock;
 
-pub trait Item<T> {
-    fn insert();
+use diesel::result::Error;
 
-    fn delete();
+pub trait CrudAccess<T> {
+    type Item;
+
+    fn create(conn: &PgConnection, stock: &Self::Item) -> Result<Self::Item, Error>;
+
+    fn show(con: &PgConnection, customer_id_needed: i32) -> Result<Vec<Self::Item>, Error>;
+
+    fn update(conn: &PgConnection, stock: &Self::Item) -> Result<Self::Item, Error>;
+
+    fn delete(conn: &PgConnection, stock: &Self::Item) -> Result<Self::Item, Error>;
 }
 
 pub fn get_connection() -> PgConnection {

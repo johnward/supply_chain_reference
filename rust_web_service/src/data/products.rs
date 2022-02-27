@@ -1,52 +1,49 @@
-use crate::data::get_connection;
 use crate::models::{NewProduct, Product};
 use crate::schema;
 use crate::schema::products::dsl::*;
-use diesel::pg::PgConnection;
 use diesel::prelude::*;
+use diesel::result::Error;
+use schema::products;
 
-pub fn create_product<'a>(conn: &PgConnection, product: &'a Product) -> Product {
-    use schema::products;
-
+pub fn create_product<'a>(conn: &PgConnection, product: &'a Product) -> Result<Product, Error> {
     let new_product = NewProduct {
         product_name: product.product_name.clone(),
         product_type: product.product_type.clone(),
         amount: product.amount,
     };
 
-    let ret = diesel::insert_into(products::table)
+    let product_result = diesel::insert_into(products::table)
         .values(&new_product)
-        .get_result(conn)
-        .expect("Error saving new post");
+        .get_result(conn);
 
-    println!("Ret: {:?}", ret);
+    // Debug return type
+    println!("Ret: {:?}", product_result.as_ref());
 
-    ret
+    product_result
 }
 
-pub fn update_product<'a>(con: &PgConnection, product: &'a Product) {
-    let product = diesel::update(products)
+pub fn update_product<'a>(con: &PgConnection, product: &'a Product) -> Result<Product, Error> {
+    let product_result = diesel::update(products)
         .set(product)
-        .get_result::<Product>(con)
-        .expect(&format!("Unable to find post {}", product.id)); //.get_result();
+        .get_result::<Product>(con);
 
-    println!("Published post {}", product.id);
+    // Debug return type
+    println!("Published post {:?}", product_result.as_ref());
+
+    product_result
 }
 
-pub fn delete_product<'a>(con: &PgConnection, product: &'a Product) {
-    let num_deleted = diesel::delete(products.find(product.id))
-        .execute(con)
-        .expect("Error deleting posts");
+pub fn delete_product<'a>(con: &PgConnection, product: &'a Product) -> Result<usize, Error> {
+    let num_deleted = diesel::delete(products.find(product.id)).execute(con);
 
-    println!("Deleted {} posts", num_deleted);
+    // Debug return type
+    println!("Deleted {:?} posts", num_deleted);
+
+    num_deleted
 }
 
-pub fn show_products() -> Vec<Product> {
-    let connection = get_connection();
-    let results = products
-        .limit(10)
-        .load::<Product>(&connection)
-        .expect("Error loading posts");
+pub fn show_products(conn: &PgConnection) -> Result<Vec<Product>, Error> {
+    let results = products.limit(10).load::<Product>(conn);
 
     // println!("Displaying {} posts", results.len());
     // for post in results {

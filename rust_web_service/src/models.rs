@@ -3,7 +3,7 @@ use super::schema::products;
 use super::schema::stocks;
 use serde_derive::{Deserialize, Serialize};
 
-#[derive(Queryable, AsChangeset, Debug, Serialize, Deserialize)]
+#[derive(Clone, Queryable, AsChangeset, Debug, Serialize, Deserialize)]
 pub struct Order {
     pub id: i32,
     pub product_name: String,
@@ -35,7 +35,7 @@ impl Order {
     }
 }
 
-#[derive(Insertable, Queryable)]
+#[derive(Insertable)]
 #[table_name = "orders"]
 pub struct NewOrder {
     pub product_name: String,
@@ -55,10 +55,10 @@ pub struct Product {
     pub id: i32,
     pub product_name: String,
     pub product_type: String,
-    pub amount: i32,
+    pub amount: i32, // TODO Not sure this is needed
 }
 
-#[derive(Insertable, Queryable)]
+#[derive(Insertable)]
 #[table_name = "products"]
 pub struct NewProduct {
     pub product_name: String,
@@ -74,7 +74,7 @@ pub struct Stock {
     pub amount: i32,
 }
 
-#[derive(Insertable, Queryable)]
+#[derive(Insertable)]
 #[table_name = "stocks"]
 pub struct NewStock {
     pub product_name: String,

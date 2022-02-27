@@ -1,4 +1,4 @@
-use crate::handlers::{core_handler, order_handler, product_handler, stock_handler};
+use crate::api::{core_handler, order_handler, product_handler, stock_handler};
 use actix_web::dev::Server;
 use actix_web::{web, App, HttpRequest, HttpServer, Responder};
 use futures::executor;
@@ -19,12 +19,6 @@ impl ServerConfig {
         &self.address
     }
 }
-
-// trait Service {
-//     fn start_service() -> std::io::Result<()>;
-
-//     fn stop_service() -> std::io::Result<()>;
-// }
 
 pub struct WebService {
     config: ServerConfig,

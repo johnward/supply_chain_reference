@@ -1,13 +1,11 @@
-use crate::data::get_connection;
 use crate::models::{NewOrder, Order};
 use crate::schema;
 use crate::schema::orders::dsl::*;
-use diesel::pg::PgConnection;
 use diesel::prelude::*;
+use diesel::result::Error;
+use schema::orders;
 
-pub fn create_order<'a>(conn: &PgConnection, order: &'a Order) -> Order {
-    use schema::orders;
-
+pub fn create_order<'a>(conn: &PgConnection, order: &'a Order) -> Result<Order, Error> {
     let new_order = NewOrder {
         product_name: order.product_name.clone(),
         product_id: order.product_id,
@@ -16,51 +14,46 @@ pub fn create_order<'a>(conn: &PgConnection, order: &'a Order) -> Order {
         address: order.address.clone(),
     };
 
-    let ret = diesel::insert_into(orders::table)
+    diesel::insert_into(orders::table)
         .values(&new_order)
         .get_result(conn)
-        .expect("Error saving new post");
-
-    println!("Ret: {:?}", ret);
-
-    ret
 }
 
-pub fn fulfill_order<'a>(con: &PgConnection, order_id: i32) -> Option<Order> {
+pub fn fulfill_order<'a>(con: &PgConnection, order_id: i32) -> Result<Order, Error> {
     let order = diesel::update(orders.find(order_id))
         .set(fulfilled.eq(true))
-        .get_result::<Order>(con)
-        .expect(&format!("Unable to find post {}", order_id)); //.get_result();
+        .get_result::<Order>(con);
 
-    println!("Published post {}", order.id);
+    println!("Published post {:?}", order.as_ref());
 
-    Some(order)
+    order
 }
 
-pub fn update_order<'a>(con: &PgConnection, order: &'a Order) {
-    let order = diesel::update(orders)
+pub fn update_order<'a>(con: &PgConnection, order: &'a Order) -> Result<Order, Error> {
+    let order = diesel::update(orders::table)
         .set(order)
-        .get_result::<Order>(con)
-        .expect(&format!("Unable to find post {}", order.id)); //.get_result();
+        .get_result::<Order>(con);
 
-    println!("Published post {}", order.id);
+    // For debug
+    println!("Published post {:?}", order.as_ref());
+
+    order
 }
 
-pub fn delete_order<'a>(con: &PgConnection, order: &'a Order) {
-    let num_deleted = diesel::delete(orders.find(order.id))
-        .execute(con)
-        .expect("Error deleting posts");
+pub fn delete_order<'a>(con: &PgConnection, order: &'a Order) -> Result<usize, Error> {
+    let num_deleted = diesel::delete(orders.find(order.id)).execute(con);
 
-    println!("Deleted {} posts", num_deleted);
+    // For debug
+    println!("Deleted {:?} posts", num_deleted.as_ref());
+
+    num_deleted
 }
 
-pub fn show_orders(customer_id_needed: i32) -> Vec<Order> {
-    let connection = get_connection();
+pub fn show_orders(con: &PgConnection, customer_id_needed: i32) -> Result<Vec<Order>, Error> {
     let results = orders
         .filter(customer_id.eq(customer_id_needed))
         .limit(5)
-        .load::<Order>(&connection)
-        .expect("Error loading posts");
+        .load::<Order>(con);
 
     // println!("Displaying {} posts", results.len());
     // for post in results {
@@ -70,4 +63,15 @@ pub fn show_orders(customer_id_needed: i32) -> Vec<Order> {
     // }
 
     results
+}
+
+pub fn get_orders(con: &PgConnection, order_id_needed: i32) -> Result<Order, Error> {
+    match orders
+        .filter(id.eq(order_id_needed))
+        .limit(5)
+        .load::<Order>(con)
+    {
+        Ok(o) => Ok(o[0].clone()),
+        Err(e) => Err(e),
+    }
 }
