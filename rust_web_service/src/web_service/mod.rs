@@ -125,17 +125,8 @@ impl WebService {
         .run();
 
         // clone our Server handle to pass to a thread
-        let srv = server.clone();
-
-        WebService::setup_gracefulstop(srv, receiver);
-        // // Create a new thread to wait for the stop signal
-        // thread::spawn(move || {
-        //     // blocking, while we wait for the server shutdown signal
-        //     receiver.recv().unwrap();
-
-        //     // stop server
-        //     executor::block_on(srv.stop(true))
-        // });
+        //let srv = server.clone();
+        WebService::setup_gracefulstop(server.clone(), receiver);
 
         server.await
     }
