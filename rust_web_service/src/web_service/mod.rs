@@ -1,7 +1,9 @@
 use crate::api::{core_handler, order_handler, product_handler, stock_handler};
+use actix_files::{Files, NamedFile};
 use actix_web::dev::Server;
 use actix_web::{web, App, HttpRequest, HttpServer, Responder};
 use futures::executor;
+use handlebars::Handlebars;
 use log::warn;
 use serde_derive::Deserialize;
 use std::fs::File;
@@ -65,12 +67,21 @@ impl WebService {
         // create a channel
         let (sender, receiver) = mpsc::channel::<()>();
 
+        let mut handlebars = Handlebars::new();
+        handlebars
+            .register_templates_directory(".html", "./static/")
+            .unwrap();
+
+        let handlebars_ref = web::Data::new(handlebars);
+
         let server = HttpServer::new(move || {
             App::new()
-                .data(sender.clone())
+                .app_data(handlebars_ref.clone())
+                .app_data(sender.clone())
                 .route("/", web::get().to(WebService::healthcheck))
                 .route("/stop", web::get().to(core_handler::stop))
                 .service(order_handler::order_list)
+                .service(order_handler::order_display)
                 .service(
                     web::resource("/order/create")
                         .route(web::post().to(order_handler::order_create)),
@@ -125,7 +136,6 @@ impl WebService {
         .run();
 
         // clone our Server handle to pass to a thread
-        //let srv = server.clone();
         WebService::setup_gracefulstop(server.clone(), receiver);
 
         server.await

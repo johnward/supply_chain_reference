@@ -1,6 +1,7 @@
 use crate::api::core_handler::object_crud;
 use crate::services::order_service::*;
 use actix_web::{get, web, Error, HttpResponse, Responder};
+use handlebars::Handlebars;
 use serde_derive::Deserialize;
 
 #[derive(Deserialize, Debug)]
@@ -41,6 +42,28 @@ pub async fn fulfill_order(data: web::Json<OrderInfo>) -> Result<HttpResponse, E
 pub async fn order_list(customer_id: web::Path<i32>) -> Result<impl Responder, Error> {
     let orders = show_orders(customer_id.into_inner());
     Ok(HttpResponse::Ok().json(orders))
+}
+
+/// The endpoint to complete to get the current list of orders
+/// # Arguments
+///
+/// * 'customer_id' - The id of the customer to get the list of oorders for
+///            
+/// # Return type
+/// * HTTPResponse or Error
+///
+#[get("/order/display/{customer_id}")]
+pub async fn order_display(
+    customer_id: web::Path<i32>,
+    hb: web::Data<Handlebars<'_>>,
+) -> Result<impl Responder, Error> {
+    let orders = show_orders(customer_id.into_inner());
+
+    let order_string = serde_json::to_string(&orders).unwrap();
+
+    let body = hb.render("index", &order_string).unwrap();
+
+    Ok(HttpResponse::Ok().body(body))
 }
 
 /// The endpoint to to create a new order for a perticular customer
