@@ -11,26 +11,18 @@ pub struct StockIncr {
 
 pub async fn stock_increment(data: web::Json<StockIncr>) -> Result<HttpResponse, Error> {
     // Call the increment stock service function
-    let stock = increment_stock(data.id, data.incr_amount);
-
-    // Now send the response
-    Ok(HttpResponse::Ok().json(stock))
+    match increment_stock(data.id, data.incr_amount) {
+        Ok(stock) => Ok(HttpResponse::Ok().json(stock)),
+        Err(error) => Err(error::ErrorBadRequest(error)),
+    }
 }
 
-//#[get("/stock/list/")]
 pub async fn stock_list() -> Result<impl Responder, Error> {
     // Call the get stock service functions
     match get_stock() {
         Ok(stocks) => Ok(HttpResponse::Ok().json(stocks)),
         Err(error) => Err(error::ErrorBadRequest(error)),
     }
-
-    // check if we have received anything, otherwise return an error
-    // if stocks.len() > 0 {
-    //     Ok(HttpResponse::Ok().json(stocks))
-    // } else {
-    //     Err(error::ErrorBadRequest("No Stock"))
-    // }
 }
 
 /// The endpoint to create a new stock balance

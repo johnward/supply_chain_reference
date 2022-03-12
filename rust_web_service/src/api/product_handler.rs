@@ -1,6 +1,6 @@
 use crate::api::core_handler::object_crud;
 use crate::services::product_service::*;
-use actix_web::{web, Error, HttpResponse, Responder};
+use actix_web::{error, web, Error, HttpResponse, Responder};
 
 /// The endpoint to get a current list of all products
 /// # Arguments
@@ -10,8 +10,10 @@ use actix_web::{web, Error, HttpResponse, Responder};
 /// * Responder trait or Error
 ///
 pub async fn product_list() -> Result<impl Responder, Error> {
-    let products = show_products();
-    Ok(HttpResponse::Ok().json(products))
+    match show_products() {
+        Ok(stocks) => Ok(HttpResponse::Ok().json(stocks)),
+        Err(error) => Err(error::ErrorBadRequest(error)),
+    }
 }
 
 /// The endpoint to create a new product
