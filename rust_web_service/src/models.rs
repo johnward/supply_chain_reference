@@ -3,37 +3,44 @@ use super::schema::products;
 use super::schema::stocks;
 use serde_derive::{Deserialize, Serialize};
 
-#[derive(Clone, Queryable, AsChangeset, Debug, Serialize, Deserialize)]
-pub struct Order {
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct OrderRow {
     pub id: i32,
     pub product_name: String,
     pub product_id: i32,
+    pub amount: i32,
+    pub order_id: i32,
+}
+
+#[derive(Clone, Queryable, AsChangeset, Debug, Serialize, Deserialize)]
+pub struct Order {
+    pub id: i32,
     pub customer_id: i32,
     pub amount: i32,
     pub address: String,
     pub fulfilled: bool,
 }
 
-impl Order {
-    pub fn new(
-        id: i32,
-        product_name: String,
-        product_id: i32,
-        customer_id: i32,
-        amount: i32,
-        address: String,
-    ) -> Order {
-        Order {
-            id,
-            product_name,
-            product_id,
-            customer_id,
-            amount,
-            address,
-            fulfilled: false,
-        }
-    }
-}
+// impl Order {
+//     pub fn new(
+//         id: i32,
+//         product_name: String,
+//         product_id: i32,
+//         customer_id: i32,
+//         amount: i32,
+//         address: String,
+//     ) -> Order {
+//         Order {
+//             id,
+//             product_name,
+//             product_id,
+//             customer_id,
+//             amount,
+//             address,
+//             fulfilled: false,
+//         }
+//     }
+// }
 
 #[derive(Insertable)]
 #[table_name = "orders"]
