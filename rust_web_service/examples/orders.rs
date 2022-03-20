@@ -1,21 +1,47 @@
 use futures::executor::block_on;
+use hyper::{Body, Client, Method, Request, Uri};
+use serde_json::{json, to_string_pretty};
 use std::env;
 use std::io::Read;
 
-use hyper::{Body, Client, Method, Request, Uri};
+pub struct Stock {
+    pub id: u64,
+    pub product_name: String,
+    pub product_id: u64,
+    pub amount: u64,
+}
 
 fn main() {
     let arg = env::args().nth(1).expect("No args");
 
     if arg == "create" {
-        create();
+        create_order();
     } else if arg == "list_orders" {
         list_orders();
+    } else if arg == "stock" {
+        create_stock(Stock {
+            id: 1,
+            product_name: String::from("Harry Potter"),
+            product_id: 22,
+            amount: 3,
+        });
+        create_stock(Stock {
+            id: 1,
+            product_name: String::from("Hitch Hikers Guide to the Galaxy"),
+            product_id: 32,
+            amount: 70,
+        });
+        create_stock(Stock {
+            id: 1,
+            product_name: String::from("Harry Potter 2"),
+            product_id: 40,
+            amount: 66,
+        });
     }
 }
 
 #[tokio::main]
-async fn create() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+async fn create_order() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let req = Request::builder()
         .method(Method::POST)
         .uri("http://localhost:8080/order/create")
@@ -62,6 +88,39 @@ async fn list_orders() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let resp = client.request(req).await?;
 
     println!("Response: {:?}", resp.status());
+
+    Ok(())
+}
+
+/*
+pub struct Stock {
+    pub id: u64,
+    pub product_name: String,
+    pub product_id: u64,
+    pub amount: u64,
+} */
+
+#[tokio::main]
+async fn create_stock(stock: Stock) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+    let obj = json!({"id":stock.id,
+         "product_name":stock.product_name,
+         "product_id":stock.product_id,
+         "amount":stock.amount,
+    });
+
+    let post_body = format!("{}", serde_json::to_string_pretty(&obj).unwrap());
+
+    let req = Request::builder()
+        .method(Method::POST)
+        .uri("http://localhost:8080/stock/create")
+        .header("content-type", "application/json")
+        .body(Body::from(post_body))?;
+
+    let client = Client::new();
+
+    let resp = client.request(req).await?;
+
+    println!("Response: {}", resp.status());
 
     Ok(())
 }
