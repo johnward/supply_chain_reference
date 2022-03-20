@@ -20,6 +20,7 @@ pub struct Order {
     pub customer_id: i32,
     pub amount: i32,
     pub address: String,
+    pub fulfilled: bool,
 }
 
 // impl Order {
