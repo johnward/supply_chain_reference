@@ -12,7 +12,7 @@ pub struct OrderRow {
     pub order_id: i32,
 }
 
-#[derive(Clone, Queryable, AsChangeset, Debug, Serialize, Deserialize)]
+#[derive(Clone, Identifiable, Queryable, AsChangeset, Debug, Serialize, Deserialize)]
 pub struct Order {
     pub id: i32,
     pub product_name: String,
@@ -45,13 +45,24 @@ pub struct Order {
 // }
 
 #[derive(Insertable)]
-#[table_name = "orders"]
-pub struct NewOrder {
+#[table_name = "orderslines"]
+pub struct NewOrderLine {
     pub product_name: String,
     pub product_id: i32,
     pub customer_id: i32,
     pub amount: i32,
     pub address: String,
+}
+
+#[derive(
+    Clone, Identifiable, Associations, Queryable, AsChangeset, Debug, Serialize, Deserialize,
+)]
+pub struct OrderLine {
+    pub id: i32,
+    pub order_id: i32,
+    pub product_name: String,
+    pub product_id: i32,
+    pub amount: i32,
 }
 
 // #[derive(Debug, Serialize, Deserialize)]
