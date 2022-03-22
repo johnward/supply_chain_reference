@@ -111,7 +111,9 @@ pub fn complete_fulfill_order(id: i32) -> Result<Order, ServiceError> {
             match stocks {
                 Ok(stocks) => {
                     // if order amount is <= stock amount
-                    if stocks.len() == 1 && current_order.amount <= stocks[0].amount {
+                    if stocks.len() == 1
+                    /*&& current_order.amount <= stocks[0].amount */
+                    {
                         //      Decrement stock amount by order amount
                         match increment_stock(&connection, stocks[0].id, stocks[0].amount) {
                             Ok(_s) => match orders::fulfill_order(&connection, current_order.id) {

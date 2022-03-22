@@ -1,24 +1,15 @@
+use super::schema::orderlines;
 use super::schema::orders;
 use super::schema::products;
 use super::schema::stocks;
+
 use serde_derive::{Deserialize, Serialize};
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct OrderRow {
-    pub id: i32,
-    pub product_name: String,
-    pub product_id: i32,
-    pub amount: i32,
-    pub order_id: i32,
-}
-
 #[derive(Clone, Identifiable, Queryable, AsChangeset, Debug, Serialize, Deserialize)]
+#[table_name = "orders"]
 pub struct Order {
     pub id: i32,
-    pub product_name: String,
-    pub product_id: i32,
     pub customer_id: i32,
-    pub amount: i32,
     pub address: String,
     pub fulfilled: bool,
 }
@@ -45,20 +36,30 @@ pub struct Order {
 // }
 
 #[derive(Insertable)]
-#[table_name = "orderslines"]
-pub struct NewOrderLine {
-    pub product_name: String,
-    pub product_id: i32,
+#[table_name = "orders"]
+pub struct NewOrder {
     pub customer_id: i32,
-    pub amount: i32,
     pub address: String,
+    pub fulfilled: bool,
 }
 
 #[derive(
     Clone, Identifiable, Associations, Queryable, AsChangeset, Debug, Serialize, Deserialize,
 )]
+#[belongs_to(Order)]
+#[table_name = "orderlines"]
 pub struct OrderLine {
     pub id: i32,
+    pub order_id: i32,
+    pub product_name: String,
+    pub product_id: i32,
+    pub amount: i32,
+}
+
+#[derive(Insertable, Associations)]
+#[belongs_to(Order)]
+#[table_name = "orderlines"]
+pub struct NewOrderLine {
     pub order_id: i32,
     pub product_name: String,
     pub product_id: i32,
