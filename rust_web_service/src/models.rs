@@ -5,7 +5,7 @@ use super::schema::stocks;
 
 use serde_derive::{Deserialize, Serialize};
 
-#[derive(Clone, Identifiable, Queryable, AsChangeset, Debug, Serialize, Deserialize)]
+#[derive(Clone, Identifiable, Queryable, AsChangeset, Debug, Serialize, Deserialize, PartialEq)]
 #[table_name = "orders"]
 pub struct Order {
     pub id: i32,

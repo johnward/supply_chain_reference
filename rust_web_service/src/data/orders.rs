@@ -19,15 +19,6 @@ pub fn create_order<'a>(conn: &PgConnection, order: &'a Order) -> Result<Order, 
         .get_result(conn)
 }
 
-/*
-pub struct OrderLine {
-    pub id: i32,
-    pub order_id: i32,
-    pub product_name: String,
-    pub product_id: i32,
-    pub amount: i32,
-} */
-
 pub fn create_order_line<'a>(
     conn: &PgConnection,
     orderline: &'a OrderLine,
@@ -44,8 +35,8 @@ pub fn create_order_line<'a>(
         .get_result(conn)
 }
 
-pub fn fulfill_order<'a>(con: &PgConnection, order_id: i32) -> Result<Order, Error> {
-    let order = diesel::update(orders.find(order_id))
+pub fn fulfill_order<'a>(con: &PgConnection, ord_id: i32) -> Result<Order, Error> {
+    let order = diesel::update(orders.find(ord_id))
         .set(fulfilled.eq(true))
         .get_result::<Order>(con);
 
@@ -74,7 +65,7 @@ pub fn update_orderline<'a>(
         .get_result::<OrderLine>(con);
 
     // For debug
-    println!("Published post {:?}", order.as_ref());
+    println!("Published post {:?}", orderline.as_ref());
 
     orderline
 }
@@ -115,11 +106,84 @@ pub fn show_orders(con: &PgConnection, customer_id_needed: i32) -> Result<Vec<Or
 
 pub fn get_orders(con: &PgConnection, order_id_needed: i32) -> Result<Order, Error> {
     match orders
-        .filter(id.eq(order_id_needed))
+        .filter(orders::id.eq(order_id_needed))
         .limit(5)
         .load::<Order>(con)
     {
         Ok(o) => Ok(o[0].clone()),
         Err(e) => Err(e),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::data::*;
+    use crate::models::Order;
+
+    #[test]
+    fn test_create_delete_order() {
+        // Create a database connection
+        let connection = get_connection();
+
+        let new_order = Order {
+            id: 0,
+            customer_id: 1,
+            address: String::from("37 Woodchip Road, Manchester"),
+            fulfilled: false,
+        };
+
+        // Call the create order data interface
+        //orders::create_order(&connection, &order)
+        match orders::create_order(&connection, &new_order) {
+            Ok(created_order) => {
+                assert_eq!(created_order.customer_id, new_order.customer_id);
+                assert_eq!(created_order.address, new_order.address);
+                assert_eq!(created_order.fulfilled, new_order.fulfilled);
+            }
+            Err(_error) => assert!(false),
+        }
+
+        match orders::delete_order(&connection, &new_order) {
+            Ok(size) => assert_eq!(size, 1),
+            Err(_error) => assert!(false),
+        }
+    }
+
+    #[test]
+    fn test_update_order() {
+        // Create a database connection
+        let connection = get_connection();
+
+        let mut new_order = Order {
+            id: 0,
+            customer_id: 1,
+            address: String::from("37 Woodchip Road, Manchester"),
+            fulfilled: false,
+        };
+
+        // Call the create order data interface
+        match orders::create_order(&connection, &new_order) {
+            Ok(created_order) => {
+                assert_eq!(created_order.customer_id, new_order.customer_id);
+                assert_eq!(created_order.address, new_order.address);
+                assert_eq!(created_order.fulfilled, new_order.fulfilled);
+            }
+            Err(_error) => assert!(false),
+        }
+
+        new_order.address = String::from("1 Woodchip Road, Manchester");
+
+        match orders::update_order(&connection, &new_order) {
+            Ok(updated_order) => assert_eq!(
+                updated_order.address,
+                String::from("1 Woodchip Road, Manchester")
+            ),
+            Err(_error) => assert!(false),
+        }
+
+        match orders::delete_order(&connection, &new_order) {
+            Ok(size) => assert_eq!(size, 1),
+            Err(_error) => assert!(false),
+        }
     }
 }
