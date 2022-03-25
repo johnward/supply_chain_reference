@@ -1,5 +1,5 @@
 use crate::data::*;
-use crate::models::Order;
+use crate::models::{Order, OrderLine};
 use crate::services::{create_error, ServiceError, ServiceErrorTypes};
 
 pub fn show_orders(customer_id_needed: i32) -> Result<Vec<Order>, ServiceError> {
@@ -32,6 +32,26 @@ pub fn create_order<'a>(order: &'a Order) -> Result<Order, ServiceError> {
     }
 }
 
+/// The endpoint to to create a new order for a perticular customer
+/// # Arguments
+///
+/// * 'orderline' - this contains the JSON body data for the new order
+///            
+/// # Return type
+/// * Orderline - Order created
+///
+pub fn create_orderline<'a>(orderline: &'a OrderLine) -> Result<OrderLine, ServiceError> {
+    // Call the create order data interface
+    //orders::create_order(&connection, &order)
+    match orders::create_orderline(&orderline) {
+        Ok(created_orderline) => Ok(created_orderline),
+        Err(error) => create_error(ServiceErrorTypes::InfoNotFound(format!(
+            "Error Creating Orders {}",
+            error.to_string()
+        ))),
+    }
+}
+
 /// The endpoint to create a cancel an order which deletes it from the database
 /// # Arguments
 ///
@@ -52,6 +72,26 @@ pub fn delete_order<'a>(order: &'a Order) -> Result<usize, ServiceError> {
     }
 }
 
+/// The endpoint to create a cancel an order which deletes it from the database
+/// # Arguments
+///
+/// * 'orderline' - Orderline to delete
+///            
+/// # Return type
+///
+/// * usize - number of orders deleted
+///
+pub fn delete_orderline<'a>(orderline: &'a OrderLine) -> Result<usize, ServiceError> {
+    // Call the delete order data interface
+    match orders::delete_orderline(&orderline) {
+        Ok(size) => Ok(size),
+        Err(error) => create_error(ServiceErrorTypes::InfoNotFound(format!(
+            "Error Deleting Orders {}",
+            error.to_string()
+        ))),
+    }
+}
+
 /// The endpoint to update the information on a current order
 /// # Arguments
 ///
@@ -63,7 +103,26 @@ pub fn delete_order<'a>(order: &'a Order) -> Result<usize, ServiceError> {
 pub fn update_order<'a>(order: &'a Order) -> Result<Order, ServiceError> {
     // Call the update order data interface
     match orders::update_order(&order) {
-        Ok(order) => Ok(order),
+        Ok(updated_order) => Ok(updated_order),
+        Err(error) => create_error(ServiceErrorTypes::InfoNotFound(format!(
+            "Error Updating Orders {}",
+            error.to_string()
+        ))),
+    }
+}
+
+/// The endpoint to update the information on a current order
+/// # Arguments
+///
+/// * 'order' - Order to update
+///            
+/// # Return type
+/// * Order
+///
+pub fn update_orderline<'a>(orderline: &'a OrderLine) -> Result<OrderLine, ServiceError> {
+    // Call the update order data interface
+    match orders::update_orderline(&orderline) {
+        Ok(updated_orderline) => Ok(updated_orderline),
         Err(error) => create_error(ServiceErrorTypes::InfoNotFound(format!(
             "Error Updating Orders {}",
             error.to_string()
