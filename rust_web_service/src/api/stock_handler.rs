@@ -61,6 +61,7 @@ pub async fn stock_update(payload: web::Payload) -> Result<HttpResponse, Error> 
     object_crud(payload, &update_stock).await
 }
 
+/*
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -285,4 +286,4 @@ mod tests {
 
         assert_eq!(return_info.amount, 1);
     }
-}
+}*/

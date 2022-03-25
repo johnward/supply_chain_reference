@@ -10,9 +10,7 @@ use crate::services::{create_error, ServiceError, ServiceErrorTypes};
 /// * Responder trait or Error
 ///
 pub fn show_products() -> Result<Vec<Product>, ServiceError> {
-    let connection = get_connection();
-
-    match products::show_products(&connection) {
+    match products::show_products() {
         Ok(product) => Ok(product),
         Err(error) => create_error(ServiceErrorTypes::InfoNotFound(format!(
             "Error Finding Products {}",
@@ -30,24 +28,18 @@ pub fn show_products() -> Result<Vec<Product>, ServiceError> {
 /// * Product
 ///
 pub fn create_product<'a>(product: &'a Product) -> Result<Product, ServiceError> {
-    let connection = get_connection();
-
     // Create product business logic here,
 
     // Potentially search cache first.
 
     // Call the product service
-    let product = match products::create_product(&connection, &product) {
+    match products::create_product(&product) {
         Ok(order) => Ok(order),
         Err(error) => create_error(ServiceErrorTypes::InfoNotFound(format!(
             "Error Creating Products {}",
             error.to_string()
         ))),
-    };
-
-    // send the product to the cache
-
-    product
+    }
 }
 
 /// The endpoint to delete a new product
@@ -59,10 +51,9 @@ pub fn create_product<'a>(product: &'a Product) -> Result<Product, ServiceError>
 ///
 pub fn delete_product<'a>(product: &'a Product) -> Result<usize, ServiceError> {
     // Get the appropiate connection
-    let connection = get_connection();
 
     // Now call the delete function in our data interface
-    match products::delete_product(&connection, &product) {
+    match products::delete_product(&product) {
         Ok(ret_product) => Ok(ret_product),
         Err(error) => create_error(ServiceErrorTypes::InfoNotFound(format!(
             "Error Deleting Products {}",
@@ -79,11 +70,8 @@ pub fn delete_product<'a>(product: &'a Product) -> Result<usize, ServiceError> {
 /// # Return type
 ///
 pub fn update_product<'a>(product: &'a Product) -> Result<Product, ServiceError> {
-    // Get the data interface connection
-    let connection = get_connection();
-
     // Call update product data interface
-    match products::update_product(&connection, &product) {
+    match products::update_product(&product) {
         Ok(ret_product) => Ok(ret_product),
         Err(error) => create_error(ServiceErrorTypes::InfoNotFound(format!(
             "Error Updating Products {}",

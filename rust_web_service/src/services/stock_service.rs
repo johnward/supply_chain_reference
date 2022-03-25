@@ -3,9 +3,7 @@ use crate::models::{ReturnInfo, Stock};
 use crate::services::{create_error, ServiceError, ServiceErrorTypes};
 
 pub fn increment_stock<'a>(stock_id: i32, amount_change: i32) -> Result<Stock, ServiceError> {
-    let connection = get_connection();
-
-    match stock::increment_stock(&connection, stock_id, amount_change) {
+    match stock::increment_stock(stock_id, amount_change) {
         Ok(ret_product) => Ok(ret_product),
         Err(error) => create_error(ServiceErrorTypes::InfoNotFound(format!(
             "Error Deleting Products {}",
@@ -33,9 +31,7 @@ pub fn get_stock() -> Result<Vec<Stock>, ServiceError> {
 /// * pub fn create_stock<'a>(stock: &'a Stock) -> Stock {
 ///
 pub fn create_stock<'a>(stock: &'a Stock) -> Result<Stock, ServiceError> {
-    let connection = get_connection();
-
-    match stock::create_stock(&connection, &stock) {
+    match stock::create_stock(&stock) {
         Ok(ret_product) => Ok(ret_product),
         Err(error) => create_error(ServiceErrorTypes::InfoNotFound(format!(
             "Error Deleting Products {}",
@@ -54,9 +50,7 @@ pub fn create_stock<'a>(stock: &'a Stock) -> Result<Stock, ServiceError> {
 ///
 pub fn delete_stock<'a>(stock: &'a Stock) -> Result<ReturnInfo, ServiceError> {
     // Delete Order
-    let connection = get_connection();
-
-    match stock::delete_stock(&connection, &stock) {
+    match stock::delete_stock(&stock) {
         Ok(ret_product) => Ok(ReturnInfo {
             amount: ret_product,
         }),
@@ -77,9 +71,7 @@ pub fn delete_stock<'a>(stock: &'a Stock) -> Result<ReturnInfo, ServiceError> {
 ///
 pub fn update_stock<'a>(stock: &'a Stock) -> Result<Stock, ServiceError> {
     // Update Order
-    let connection = get_connection();
-
-    match stock::update_stock(&connection, &stock) {
+    match stock::update_stock(&stock) {
         Ok(ret_product) => Ok(ret_product),
         Err(error) => create_error(ServiceErrorTypes::InfoNotFound(format!(
             "Error Deleting Products {}",

@@ -1,12 +1,9 @@
-use crate::data::stock::*;
 use crate::data::*;
 use crate::models::Order;
 use crate::services::{create_error, ServiceError, ServiceErrorTypes};
 
 pub fn show_orders(customer_id_needed: i32) -> Result<Vec<Order>, ServiceError> {
-    let connection = get_connection();
-
-    match orders::show_orders(&connection, customer_id_needed) {
+    match orders::show_orders(customer_id_needed) {
         Ok(order) => Ok(order),
         Err(error) => create_error(ServiceErrorTypes::InfoNotFound(format!(
             "Error Finding Orders {}",
@@ -24,12 +21,9 @@ pub fn show_orders(customer_id_needed: i32) -> Result<Vec<Order>, ServiceError> 
 /// * Order - Order created
 ///
 pub fn create_order<'a>(order: &'a Order) -> Result<Order, ServiceError> {
-    // Create a database connection
-    let connection = get_connection();
-
     // Call the create order data interface
     //orders::create_order(&connection, &order)
-    match orders::create_order(&connection, &order) {
+    match orders::create_order(&order) {
         Ok(order) => Ok(order),
         Err(error) => create_error(ServiceErrorTypes::InfoNotFound(format!(
             "Error Creating Orders {}",
@@ -48,11 +42,8 @@ pub fn create_order<'a>(order: &'a Order) -> Result<Order, ServiceError> {
 /// * usize - number of orders deleted
 ///
 pub fn delete_order<'a>(order: &'a Order) -> Result<usize, ServiceError> {
-    // Delete Order
-    let connection = get_connection();
-
     // Call the delete order data interface
-    match orders::delete_order(&connection, &order) {
+    match orders::delete_order(&order) {
         Ok(size) => Ok(size),
         Err(error) => create_error(ServiceErrorTypes::InfoNotFound(format!(
             "Error Deleting Orders {}",
@@ -70,11 +61,8 @@ pub fn delete_order<'a>(order: &'a Order) -> Result<usize, ServiceError> {
 /// * Order
 ///
 pub fn update_order<'a>(order: &'a Order) -> Result<Order, ServiceError> {
-    // Get the data connection
-    let connection = get_connection();
-
     // Call the update order data interface
-    match orders::update_order(&connection, &order) {
+    match orders::update_order(&order) {
         Ok(order) => Ok(order),
         Err(error) => create_error(ServiceErrorTypes::InfoNotFound(format!(
             "Error Updating Orders {}",
@@ -99,14 +87,12 @@ pub fn update_order<'a>(order: &'a Order) -> Result<Order, ServiceError> {
 /// result = complete_fulfill_order(order.id);
 ///
 pub fn complete_fulfill_order(id: i32) -> Result<Order, ServiceError> {
-    let connection = get_connection();
-
     // Get Order to fulfill
-    let order = orders::get_orders(&connection, id);
+    let order = orders::get_orders(id);
 
     match order {
         Ok(current_order) => {
-            let stocks = get_stock(&connection, id);
+            let stocks = stock::get_stock(id);
 
             match stocks {
                 Ok(stocks) => {
@@ -115,8 +101,8 @@ pub fn complete_fulfill_order(id: i32) -> Result<Order, ServiceError> {
                     /*&& current_order.amount <= stocks[0].amount */
                     {
                         //      Decrement stock amount by order amount
-                        match increment_stock(&connection, stocks[0].id, stocks[0].amount) {
-                            Ok(_s) => match orders::fulfill_order(&connection, current_order.id) {
+                        match stock::increment_stock(stocks[0].id, stocks[0].amount) {
+                            Ok(_s) => match orders::fulfill_order(current_order.id) {
                                 Ok(order) => Ok(order),
                                 Err(error) => create_error(ServiceErrorTypes::InfoNotFound(
                                     format!("Error Updating Orders {}", error.to_string()),
