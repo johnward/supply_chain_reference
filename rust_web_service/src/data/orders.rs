@@ -134,16 +134,27 @@ mod tests {
 
         // Call the create order data interface
         //orders::create_order(&connection, &order)
-        match orders::create_order(&connection, &new_order) {
+        let mut create_order = match orders::create_order(&connection, &new_order) {
             Ok(created_order) => {
                 assert_eq!(created_order.customer_id, new_order.customer_id);
                 assert_eq!(created_order.address, new_order.address);
                 assert_eq!(created_order.fulfilled, new_order.fulfilled);
-            }
-            Err(_error) => assert!(false),
-        }
 
-        match orders::delete_order(&connection, &new_order) {
+                created_order
+            }
+            Err(_error) => {
+                assert!(false);
+
+                Order {
+                    id: 0,
+                    customer_id: 0,
+                    address: String::from(""),
+                    fulfilled: false,
+                }
+            }
+        };
+
+        match orders::delete_order(&connection, &create_order) {
             Ok(size) => assert_eq!(size, 1),
             Err(_error) => assert!(false),
         }
@@ -162,18 +173,29 @@ mod tests {
         };
 
         // Call the create order data interface
-        match orders::create_order(&connection, &new_order) {
+        let mut created_order = match orders::create_order(&connection, &new_order) {
             Ok(created_order) => {
                 assert_eq!(created_order.customer_id, new_order.customer_id);
                 assert_eq!(created_order.address, new_order.address);
                 assert_eq!(created_order.fulfilled, new_order.fulfilled);
+
+                created_order
             }
-            Err(_error) => assert!(false),
-        }
+            Err(_error) => {
+                assert!(false);
 
-        new_order.address = String::from("1 Woodchip Road, Manchester");
+                Order {
+                    id: 0,
+                    customer_id: 0,
+                    address: String::from(""),
+                    fulfilled: false,
+                }
+            }
+        };
 
-        match orders::update_order(&connection, &new_order) {
+        created_order.address = String::from("1 Woodchip Road, Manchester");
+
+        match orders::update_order(&connection, &created_order) {
             Ok(updated_order) => assert_eq!(
                 updated_order.address,
                 String::from("1 Woodchip Road, Manchester")
@@ -181,7 +203,7 @@ mod tests {
             Err(_error) => assert!(false),
         }
 
-        match orders::delete_order(&connection, &new_order) {
+        match orders::delete_order(&connection, &created_order) {
             Ok(size) => assert_eq!(size, 1),
             Err(_error) => assert!(false),
         }
