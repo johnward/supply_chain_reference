@@ -100,19 +100,19 @@ pub fn delete_orderline<'a>(orderline: &'a OrderLine) -> Result<usize, Error> {
 pub fn show_orders(customer_id_needed: i32) -> Result<Vec<Order>, Error> {
     let connection = get_connection();
 
-    let results = orders
+    orders
         .filter(customer_id.eq(customer_id_needed))
         .limit(5)
-        .load::<Order>(&connection);
+        .load::<Order>(&connection)
+}
 
-    // println!("Displaying {} posts", results.len());
-    // for post in results {
-    //     println!("{}", post.product_name);
-    //     println!("----------\n");
-    //     println!("{}", post.address);
-    // }
+pub fn show_orderlines(order_id_needed: i32) -> Result<Vec<OrderLine>, Error> {
+    let connection = get_connection();
 
-    results
+    orderlines
+        .filter(order_id.eq(order_id_needed))
+        .limit(5)
+        .load::<OrderLine>(&connection)
 }
 
 pub fn get_orders(order_id_needed: i32) -> Result<Order, Error> {
@@ -128,14 +128,14 @@ pub fn get_orders(order_id_needed: i32) -> Result<Order, Error> {
     }
 }
 
-pub fn get_all_orders() -> Result<Vec<Order>, Error> {
-    let connection = get_connection();
+// pub fn get_all_orders() -> Result<Vec<Order>, Error> {
+//     let connection = get_connection();
 
-    match orders.load::<Order>(&connection) {
-        Ok(o) => Ok(o),
-        Err(e) => Err(e),
-    }
-}
+//     match orders.load::<Order>(&connection) {
+//         Ok(o) => Ok(o),
+//         Err(e) => Err(e),
+//     }
+// }
 
 #[cfg(test)]
 mod tests {
@@ -167,7 +167,7 @@ mod tests {
             amount: 1,
         };
 
-        let mut created_orderline = match orders::create_orderline(&order_item) {
+        let created_orderline = match orders::create_orderline(&order_item) {
             Ok(created_orderline) => {
                 assert_eq!(created_orderline.product_name, order_item.product_name);
                 assert_eq!(created_orderline.product_id, order_item.product_id);

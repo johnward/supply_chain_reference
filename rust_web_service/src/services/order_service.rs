@@ -12,6 +12,16 @@ pub fn show_orders(customer_id_needed: i32) -> Result<Vec<Order>, ServiceError> 
     }
 }
 
+pub fn show_orderlines(order_id_needed: i32) -> Result<Vec<OrderLine>, ServiceError> {
+    match orders::show_orderlines(order_id_needed) {
+        Ok(order) => Ok(order),
+        Err(error) => create_error(ServiceErrorTypes::InfoNotFound(format!(
+            "Error Finding Orders {}",
+            error.to_string()
+        ))),
+    }
+}
+
 /// The endpoint to to create a new order for a perticular customer
 /// # Arguments
 ///
