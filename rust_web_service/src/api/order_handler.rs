@@ -52,6 +52,20 @@ pub async fn order_list(customer_id: web::Path<i32>) -> Result<impl Responder, E
 /// # Return type
 /// * HTTPResponse or Error
 ///
+#[get("/orderline/list/{customer_id}")]
+pub async fn orderline_list(customer_id: web::Path<i32>) -> Result<impl Responder, Error> {
+    let orders = show_orderlines(customer_id.into_inner());
+    Ok(HttpResponse::Ok().json(orders))
+}
+
+/// The endpoint to complete to get the current list of orders
+/// # Arguments
+///
+/// * 'customer_id' - The id of the customer to get the list of oorders for
+///            
+/// # Return type
+/// * HTTPResponse or Error
+///
 #[get("/order/display/{customer_id}")]
 pub async fn order_display(
     customer_id: web::Path<i32>,
@@ -80,6 +94,20 @@ pub async fn order_create(payload: web::Payload) -> Result<HttpResponse, Error> 
     object_crud(payload, &create_order).await
 }
 
+/// The endpoint to to create a new order line for a perticular customer
+/// # Arguments
+///
+/// * 'payload' - this contains the JSON body data for the new order
+///            
+/// # Return type
+/// * HTTPResponse or Error
+///
+
+pub async fn orderline_create(payload: web::Payload) -> Result<HttpResponse, Error> {
+    // payload as bytes
+    object_crud(payload, &create_orderline).await
+}
+
 /// The endpoint to update the information on a current order
 /// # Arguments
 ///
@@ -90,6 +118,18 @@ pub async fn order_create(payload: web::Payload) -> Result<HttpResponse, Error> 
 ///
 pub async fn order_update(payload: web::Payload) -> Result<HttpResponse, Error> {
     object_crud(payload, &update_order).await
+}
+
+/// The endpoint to update the information on a current order
+/// # Arguments
+///
+/// * 'payload' - this contains the JSON body data for the new order
+///            
+/// # Return type
+/// * HTTPResponse or Error
+///
+pub async fn orderline_update(payload: web::Payload) -> Result<HttpResponse, Error> {
+    object_crud(payload, &update_orderline).await
 }
 
 /// The endpoint to create a cancel an order which deletes it from the database
@@ -103,4 +143,17 @@ pub async fn order_update(payload: web::Payload) -> Result<HttpResponse, Error> 
 ///
 pub async fn order_cancel(payload: web::Payload) -> Result<HttpResponse, Error> {
     object_crud(payload, &delete_order).await
+}
+
+/// The endpoint to create a cancel an order line which deletes it from the database
+/// # Arguments
+///
+/// * 'payload' - this contains the JSON body data for the new order
+///            
+/// # Return type
+///
+/// * HTTPResponse or Error
+///
+pub async fn orderline_cancel(payload: web::Payload) -> Result<HttpResponse, Error> {
+    object_crud(payload, &delete_orderline).await
 }
