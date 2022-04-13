@@ -1,0 +1,6 @@
+[workspace]
+
+members = [
+	"monolith_service",
+	"order_service",
+]
