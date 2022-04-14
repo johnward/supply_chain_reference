@@ -1,0 +1,32 @@
+# Rust Monolithic Web Service
+
+# Design
+
+## Order Service
+
+- Create new order
+- Update Order
+- Delete Order
+
+## Product Service
+
+- Create New Product
+- Delete Product
+- Update Product
+- List stock items
+
+## Stock Service
+
+- Add Stock
+- Remove Stock
+- List stock, with a filter
+- Stock Type: Book, MP3, MP4
+
+# Fulfilment Service
+
+1. Work out availability of items in warehouse
+2. Work out the distance of address from fulfilment centre
+3. Work out when courier can pick up item to deliver it
+4. Request items to picked out of the warehouse and packages for delivery
+5. Request Carrier to pick up items and deliver it/them to Customer
+6. Confirm when the Items have been delivered
