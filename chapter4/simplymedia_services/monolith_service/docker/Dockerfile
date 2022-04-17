@@ -19,7 +19,10 @@ RUN apt-get update \
     && apt-get install -y ca-certificates tzdata \
     && rm -rf /var/lib/apt/lists/*
 
-EXPOSE 8000
+RUN apt-get update \
+    && apt-get install -y libpq-dev
+
+EXPOSE 8081
 
 ENV TZ=Etc/UTC \
     APP_USER=appuser
