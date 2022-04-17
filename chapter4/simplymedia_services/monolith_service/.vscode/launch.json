@@ -7,15 +7,15 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug executable 'rust_web_service'",
+            "name": "Debug executable 'monolith_service'",
             "cargo": {
                 "args": [
                     "build",
-                    "--bin=rust_web_service",
-                    "--package=rust_web_service"
+                    "--bin=monolith_service",
+                    "--package=monolith_service"
                 ],
                 "filter": {
-                    "name": "rust_web_service",
+                    "name": "monolith_service",
                     "kind": "bin"
                 }
             },
@@ -25,16 +25,16 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug unit tests in executable 'rust_web_service'",
+            "name": "Debug unit tests in executable 'monolith_service'",
             "cargo": {
                 "args": [
                     "test",
                     "--no-run",
-                    "--bin=rust_web_service",
-                    "--package=rust_web_service"
+                    "--bin=monolith_service",
+                    "--package=monolith_service"
                 ],
                 "filter": {
-                    "name": "rust_web_service",
+                    "name": "monolith_service",
                     "kind": "bin"
                 }
             },
@@ -50,7 +50,7 @@
                     "test",
                     "--no-run",
                     "--test=integration_tests",
-                    "--package=rust_web_service"
+                    "--package=monolith_service"
                 ],
                 "filter": {
                     "name": "integration_tests",

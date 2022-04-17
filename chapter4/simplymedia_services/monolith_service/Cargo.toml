@@ -1,5 +1,5 @@
 [package]
-name = "rust_web_service"
+name = "monolith_service"
 version = "0.1.0"
 edition = "2018"
 

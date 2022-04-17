@@ -8,8 +8,6 @@ mod models;
 mod schema;
 mod services;
 mod web_service;
-mod fulfillment;
-mod delivery;
 
 use crate::web_service::WebService;
 
