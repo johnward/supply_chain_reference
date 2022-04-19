@@ -39,6 +39,7 @@ impl WebService {
 
     async fn healthcheck(req: HttpRequest) -> impl Responder {
         let name = req.match_info().get("name").unwrap_or("Monolith");
+        println!("Health Check Called");
         format!("Hello {}!", &name)
     }
 

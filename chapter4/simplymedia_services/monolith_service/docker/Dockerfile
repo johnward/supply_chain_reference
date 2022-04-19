@@ -22,8 +22,9 @@ RUN apt-get update \
 RUN apt-get update \
     && apt-get install -y libpq-dev
 
-RUN apt-get update \
-    && apt-get install -y vim
+#RUN apt-get update \
+#    && apt-get install -y vim \
+#    && apt install net-tools
 
 EXPOSE 8081
 
