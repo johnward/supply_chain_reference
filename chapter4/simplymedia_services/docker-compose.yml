@@ -1,0 +1,23 @@
+version: "3.7"
+
+services:
+  monolith_service:
+    build:
+      context: ./monolith_service/
+      dockerfile: ./docker/Dockerfile
+    ports:
+      - "8081:8081"
+  database:
+    container_name: 'simply_media_container'
+    image: postgres:11.2
+    volumes:
+        - ./docker-postgresql-multiple-databases:/docker-entrypoint-initdb.d
+    restart: always
+    ports:
+      - "5432:5432"
+
+    environment:
+      - POSTGRES_MULTIPLE_DATABASES=orders_db,monolith_db
+      - POSTGRES_USER=username
+      #- POSTGRES_DB=simplymedia
+      - POSTGRES_PASSWORD=password

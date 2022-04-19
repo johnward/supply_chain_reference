@@ -81,38 +81,38 @@ impl WebService {
                 .app_data(sender.clone())
                 .route("/health", web::get().to(WebService::healthcheck))
                 .route("/stop", web::get().to(core_handler::stop))
-                .service(order_handler::order_list)
-                .service(order_handler::orderline_list)
-                .service(order_handler::order_list_all)
-                .service(order_handler::order_display)
-                .service(
-                    web::resource("/order/create")
-                        .route(web::post().to(order_handler::order_create)),
-                )
-                .service(
-                    web::resource("/orderline/create")
-                        .route(web::post().to(order_handler::orderline_create)),
-                )
-                .service(
-                    web::resource("/order/cancel")
-                        .route(web::post().to(order_handler::order_cancel)),
-                )
-                .service(
-                    web::resource("/orderline/cancel")
-                        .route(web::post().to(order_handler::orderline_cancel)),
-                )
-                .service(
-                    web::resource("/order/update")
-                        .route(web::post().to(order_handler::order_update)),
-                )
-                .service(
-                    web::resource("/orderline/update")
-                        .route(web::post().to(order_handler::orderline_update)),
-                )
-                .service(
-                    web::resource("/order/fulfill")
-                        .route(web::post().to(order_handler::fulfill_order)),
-                )
+                // .service(order_handler::order_list)
+                // .service(order_handler::orderline_list)
+                // .service(order_handler::order_list_all)
+                // .service(order_handler::order_display)
+                // .service(
+                //     web::resource("/order/create")
+                //         .route(web::post().to(order_handler::order_create)),
+                // )
+                // .service(
+                //     web::resource("/orderline/create")
+                //         .route(web::post().to(order_handler::orderline_create)),
+                // )
+                // .service(
+                //     web::resource("/order/cancel")
+                //         .route(web::post().to(order_handler::order_cancel)),
+                // )
+                // .service(
+                //     web::resource("/orderline/cancel")
+                //         .route(web::post().to(order_handler::orderline_cancel)),
+                // )
+                // .service(
+                //     web::resource("/order/update")
+                //         .route(web::post().to(order_handler::order_update)),
+                // )
+                // .service(
+                //     web::resource("/orderline/update")
+                //         .route(web::post().to(order_handler::orderline_update)),
+                // )
+                // .service(
+                //     web::resource("/order/fulfill")
+                //         .route(web::post().to(order_handler::fulfill_order)),
+                // )
                 .route(
                     "/product/list",
                     web::get().to(product_handler::product_list),

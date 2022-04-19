@@ -43,7 +43,7 @@ RUN chown -R $APP_USER:$APP_USER ${APP}
 COPY settings.toml ${APP}/settings.toml
 
 ENV RUST_BACKTRACE=full
-ENV DATABASE_URL=postgres://username:password@database/simplymedia
+ENV DATABASE_URL=postgres://username:password@database/monolith_db
 
 USER $APP_USER
 WORKDIR ${APP}
