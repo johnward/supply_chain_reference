@@ -1,4 +1,4 @@
-FROM rust:1.56 as builder
+FROM rust:1.56 as project_builder
 
 RUN USER=root cargo new --bin monolith_service
 WORKDIR ./monolith_service
@@ -6,6 +6,7 @@ COPY ./Cargo.toml ./Cargo.toml
 RUN cargo build --release
 RUN rm src/*.rs
 
+# Copy the project into the container to build
 ADD . ./
 
 RUN rm ./target/release/deps/monolith_service*
@@ -35,14 +36,14 @@ RUN groupadd $APP_USER \
     && useradd -g $APP_USER $APP_USER \
     && mkdir -p ${APP}
 
-COPY --from=builder /monolith_service/target/release/monolith_service ${APP}/monolith_service
+COPY --from=project_builder /monolith_service/target/release/monolith_service ${APP}/monolith_service
 
 RUN chown -R $APP_USER:$APP_USER ${APP}
 
 COPY settings.toml ${APP}/settings.toml
 
 ENV RUST_BACKTRACE=full
-ENV DATABASE_URL=postgres://username:password@localhost/simplymedia
+ENV DATABASE_URL=postgres://username:password@database/simplymedia
 
 USER $APP_USER
 WORKDIR ${APP}
