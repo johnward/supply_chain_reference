@@ -128,14 +128,17 @@ pub fn get_orders(order_id_needed: i32) -> Result<Order, Error> {
     }
 }
 
-// pub fn get_all_orders() -> Result<Vec<Order>, Error> {
-//     let connection = get_connection();
+pub fn get_all_orders() -> Result<Vec<Order>, Error> {
+    let connection = get_connection();
 
-//     match orders.load::<Order>(&connection) {
-//         Ok(o) => Ok(o),
-//         Err(e) => Err(e),
-//     }
-// }
+    match orders.load::<Order>(&connection) {
+        Ok(o) => {
+            println!("Order Retrieved: {:?}", o);
+            Ok(o)
+        }
+        Err(e) => Err(e),
+    }
+}
 
 #[cfg(test)]
 mod tests {

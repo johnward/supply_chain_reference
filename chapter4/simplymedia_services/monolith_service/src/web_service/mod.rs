@@ -78,10 +78,11 @@ impl WebService {
             App::new()
                 .app_data(handlebars_ref.clone())
                 .app_data(sender.clone())
-                .route("/", web::get().to(WebService::healthcheck))
+                .route("/health", web::get().to(WebService::healthcheck))
                 .route("/stop", web::get().to(core_handler::stop))
                 .service(order_handler::order_list)
                 .service(order_handler::orderline_list)
+                .service(order_handler::order_list_all)
                 .service(order_handler::order_display)
                 .service(
                     web::resource("/order/create")
@@ -147,6 +148,11 @@ impl WebService {
         })
         .bind(self.config().address())?
         .run();
+
+        println!(
+            "Service Connected on {}",
+            self.config().address().to_string()
+        );
 
         // clone our Server handle to pass to a thread
         WebService::setup_gracefulstop(server.clone(), receiver);

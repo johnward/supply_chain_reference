@@ -12,7 +12,7 @@ RUN rm ./target/release/deps/monolith_service*
 RUN cargo build --release
 
 
-FROM debian:buster-slim
+FROM debian:buster
 ARG APP=/usr/src/app
 
 RUN apt-get update \
@@ -21,6 +21,9 @@ RUN apt-get update \
 
 RUN apt-get update \
     && apt-get install -y libpq-dev
+
+RUN apt-get update \
+    && apt-get install -y vim
 
 EXPOSE 8081
 
@@ -34,6 +37,11 @@ RUN groupadd $APP_USER \
 COPY --from=builder /monolith_service/target/release/monolith_service ${APP}/monolith_service
 
 RUN chown -R $APP_USER:$APP_USER ${APP}
+
+COPY settings.toml ${APP}/settings.toml
+
+ENV RUST_BACKTRACE=full
+ENV DATABASE_URL=postgres://username:password@localhost/simplymedia
 
 USER $APP_USER
 WORKDIR ${APP}

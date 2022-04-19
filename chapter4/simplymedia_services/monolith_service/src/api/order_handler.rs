@@ -40,7 +40,20 @@ pub async fn fulfill_order(data: web::Json<OrderInfo>) -> Result<HttpResponse, E
 ///
 #[get("/order/list/{customer_id}")]
 pub async fn order_list(customer_id: web::Path<i32>) -> Result<impl Responder, Error> {
+    println!("Received /order/list/ {}", customer_id);
     let orders = show_orders(customer_id.into_inner());
+    Ok(HttpResponse::Ok().json(orders))
+}
+
+/// The endpoint to complete to get the current list of all orders
+///            
+/// # Return type
+/// * HTTPResponse or Error
+///
+#[get("/order/list")]
+pub async fn order_list_all() -> Result<impl Responder, Error> {
+    println!("Received /order/list connection");
+    let orders = show_all_orders();
     Ok(HttpResponse::Ok().json(orders))
 }
 
@@ -90,6 +103,7 @@ pub async fn order_display(
 ///
 
 pub async fn order_create(payload: web::Payload) -> Result<HttpResponse, Error> {
+    println!("Received order_create connection");
     // payload as bytes
     object_crud(payload, &create_order).await
 }
@@ -104,6 +118,7 @@ pub async fn order_create(payload: web::Payload) -> Result<HttpResponse, Error> 
 ///
 
 pub async fn orderline_create(payload: web::Payload) -> Result<HttpResponse, Error> {
+    println!("Received orderline_create connection");
     // payload as bytes
     object_crud(payload, &create_orderline).await
 }
@@ -117,6 +132,7 @@ pub async fn orderline_create(payload: web::Payload) -> Result<HttpResponse, Err
 /// * HTTPResponse or Error
 ///
 pub async fn order_update(payload: web::Payload) -> Result<HttpResponse, Error> {
+    println!("Received order_update connection");
     object_crud(payload, &update_order).await
 }
 
@@ -129,6 +145,7 @@ pub async fn order_update(payload: web::Payload) -> Result<HttpResponse, Error> 
 /// * HTTPResponse or Error
 ///
 pub async fn orderline_update(payload: web::Payload) -> Result<HttpResponse, Error> {
+    println!("Received orderline_update connection");
     object_crud(payload, &update_orderline).await
 }
 
@@ -142,6 +159,7 @@ pub async fn orderline_update(payload: web::Payload) -> Result<HttpResponse, Err
 /// * HTTPResponse or Error
 ///
 pub async fn order_cancel(payload: web::Payload) -> Result<HttpResponse, Error> {
+    println!("Received order_cancel connection");
     object_crud(payload, &delete_order).await
 }
 
@@ -155,5 +173,6 @@ pub async fn order_cancel(payload: web::Payload) -> Result<HttpResponse, Error> 
 /// * HTTPResponse or Error
 ///
 pub async fn orderline_cancel(payload: web::Payload) -> Result<HttpResponse, Error> {
+    println!("Received orderline_cancel connection");
     object_crud(payload, &delete_orderline).await
 }

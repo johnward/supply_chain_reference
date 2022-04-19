@@ -2,9 +2,19 @@ use crate::data::*;
 use crate::models::{Order, OrderLine};
 use crate::services::{create_error, ServiceError, ServiceErrorTypes};
 
+pub fn show_all_orders() -> Result<Vec<Order>, ServiceError> {
+    match orders::get_all_orders() {
+        Ok(orders) => Ok(orders),
+        Err(error) => create_error(ServiceErrorTypes::InfoNotFound(format!(
+            "Error Finding Orders {}",
+            error.to_string()
+        ))),
+    }
+}
+
 pub fn show_orders(customer_id_needed: i32) -> Result<Vec<Order>, ServiceError> {
     match orders::show_orders(customer_id_needed) {
-        Ok(order) => Ok(order),
+        Ok(orders) => Ok(orders),
         Err(error) => create_error(ServiceErrorTypes::InfoNotFound(format!(
             "Error Finding Orders {}",
             error.to_string()

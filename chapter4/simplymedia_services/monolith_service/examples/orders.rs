@@ -44,7 +44,7 @@ fn main() {
 async fn create_order() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let req = Request::builder()
         .method(Method::POST)
-        .uri("http://localhost:8080/order/create")
+        .uri("http://localhost:8081/order/create")
         .header("content-type", "application/json")
         .body(Body::from(
             r#"{"id":0,
@@ -72,14 +72,14 @@ async fn list_orders() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     //let client = Client::new();
 
     // // Parse an `http::Uri`...
-    // let uri = "http://localhost:8080/order/list/5".parse()?;
+    // let uri = "http://localhost:8081/order/list/5".parse()?;
 
     // // Await the response...
     // let mut resp = client.get(uri).await?;
 
     let req = Request::builder()
         .method(Method::GET)
-        .uri("http://localhost:8080/order/list/5")
+        .uri("http://localhost:8081/order/list/5")
         .header("content-type", "application/json")
         .body(Body::from(r#""#))?;
 
@@ -112,7 +112,7 @@ async fn create_stock(stock: Stock) -> Result<(), Box<dyn std::error::Error + Se
 
     let req = Request::builder()
         .method(Method::POST)
-        .uri("http://localhost:8080/stock/create")
+        .uri("http://localhost:8081/stock/create")
         .header("content-type", "application/json")
         .body(Body::from(post_body))?;
 
