@@ -7,6 +7,12 @@ services:
       dockerfile: ./docker/Dockerfile
     ports:
       - "8081:8081"
+  order_service:
+    build:
+      context: ./order_service/
+      dockerfile: ./docker/Dockerfile
+    ports:
+      - "8082:8081"
   database:
     container_name: 'simply_media_container'
     image: postgres:11.2
