@@ -1,7 +1,7 @@
 FROM rust:1.56 as project_builder
 
-RUN USER=root cargo new --bin monolith_service
-WORKDIR ./monolith_service
+RUN USER=root cargo new --bin order_service
+WORKDIR ./order_service
 COPY ./Cargo.toml ./Cargo.toml
 RUN cargo build --release
 RUN rm src/*.rs
@@ -9,7 +9,7 @@ RUN rm src/*.rs
 # Copy the project into the container to build
 ADD . ./
 
-RUN rm ./target/release/deps/monolith_service*
+RUN rm ./target/release/deps/order_service*
 RUN cargo build --release
 
 
@@ -36,7 +36,7 @@ RUN groupadd $APP_USER \
     && useradd -g $APP_USER $APP_USER \
     && mkdir -p ${APP}
 
-COPY --from=project_builder /monolith_service/target/release/monolith_service ${APP}/monolith_service
+COPY --from=project_builder /order_service/target/release/order_service ${APP}/order_service
 
 RUN chown -R $APP_USER:$APP_USER ${APP}
 
@@ -48,4 +48,4 @@ ENV DATABASE_URL=postgres://username:password@database/order_db
 USER $APP_USER
 WORKDIR ${APP}
 
-CMD ["./monolith_service"]
+CMD ["./order_service"]
