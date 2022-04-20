@@ -1,4 +1,4 @@
-use crate::api::{core_handler, order_handler, product_handler, stock_handler};
+use crate::api::{core_handler, stock_handler};
 //use actix_files::{Files, NamedFile};
 use actix_web::dev::Server;
 use actix_web::{web, App, HttpRequest, HttpServer, Responder};
@@ -81,71 +81,23 @@ impl WebService {
                 .app_data(sender.clone())
                 .route("/health", web::get().to(WebService::healthcheck))
                 .route("/stop", web::get().to(core_handler::stop))
-                // .service(order_handler::order_list)
-                // .service(order_handler::orderline_list)
-                // .service(order_handler::order_list_all)
-                // .service(order_handler::order_display)
-                // .service(
-                //     web::resource("/order/create")
-                //         .route(web::post().to(order_handler::order_create)),
-                // )
-                // .service(
-                //     web::resource("/orderline/create")
-                //         .route(web::post().to(order_handler::orderline_create)),
-                // )
-                // .service(
-                //     web::resource("/order/cancel")
-                //         .route(web::post().to(order_handler::order_cancel)),
-                // )
-                // .service(
-                //     web::resource("/orderline/cancel")
-                //         .route(web::post().to(order_handler::orderline_cancel)),
-                // )
-                // .service(
-                //     web::resource("/order/update")
-                //         .route(web::post().to(order_handler::order_update)),
-                // )
-                // .service(
-                //     web::resource("/orderline/update")
-                //         .route(web::post().to(order_handler::orderline_update)),
-                // )
-                // .service(
-                //     web::resource("/order/fulfill")
-                //         .route(web::post().to(order_handler::fulfill_order)),
-                // )
-                .route(
-                    "/product/list",
-                    web::get().to(product_handler::product_list),
+                .route("/stock/list", web::get().to(stock_handler::stock_list))
+                .service(
+                    web::resource("/stock/create")
+                        .route(web::post().to(stock_handler::stock_create)),
                 )
                 .service(
-                    web::resource("/product/create")
-                        .route(web::post().to(product_handler::product_create)),
+                    web::resource("/stock/delete")
+                        .route(web::post().to(stock_handler::stock_delete)),
                 )
                 .service(
-                    web::resource("/product/delete")
-                        .route(web::post().to(product_handler::product_delete)),
+                    web::resource("/stock/update")
+                        .route(web::post().to(stock_handler::stock_update)),
                 )
                 .service(
-                    web::resource("/product/update")
-                        .route(web::post().to(product_handler::product_update)),
+                    web::resource("/stock/increment")
+                        .route(web::post().to(stock_handler::stock_increment)),
                 )
-            // .route("/stock/list", web::get().to(stock_handler::stock_list))
-            // .service(
-            //     web::resource("/stock/create")
-            //         .route(web::post().to(stock_handler::stock_create)),
-            // )
-            // .service(
-            //     web::resource("/stock/delete")
-            //         .route(web::post().to(stock_handler::stock_delete)),
-            // )
-            // .service(
-            //     web::resource("/stock/update")
-            //         .route(web::post().to(stock_handler::stock_update)),
-            // )
-            // .service(
-            //     web::resource("/stock/increment")
-            //         .route(web::post().to(stock_handler::stock_increment)),
-            // )
         })
         .bind(self.config().address())?
         .run();

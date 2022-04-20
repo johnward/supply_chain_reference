@@ -1,18 +1,34 @@
 version: "3.7"
 
 services:
-  monolith_service:
-    build:
-      context: ./monolith_service/
-      dockerfile: ./docker/Dockerfile
-    ports:
-      - "8081:8081"
+#  monolith_service:
+#    container_name: 'monolith_service'
+#    build:
+#      context: ./monolith_service/
+#      dockerfile: ./docker/Dockerfile
+#    ports:
+#      - "8081:8081"
   order_service:
+    container_name: 'order_service'
     build:
       context: ./order_service/
       dockerfile: ./docker/Dockerfile
     ports:
       - "8082:8081"
+  stock_service:
+    container_name: 'stock_service'
+    build:
+      context: ./stock_service/
+      dockerfile: ./docker/Dockerfile
+    ports:
+      - "8083:8081"
+  product_service:
+    container_name: 'product_service'
+    build:
+      context: ./product_service/
+      dockerfile: ./docker/Dockerfile
+    ports:
+      - "8083:8081"
   database:
     container_name: 'simply_media_container'
     image: postgres:11.2
@@ -23,7 +39,7 @@ services:
       - "5432:5432"
 
     environment:
-      - POSTGRES_MULTIPLE_DATABASES=orders_db,monolith_db
+      - POSTGRES_MULTIPLE_DATABASES=orders_db,monolith_db,stocks_db,products_db
       - POSTGRES_USER=username
       #- POSTGRES_DB=simplymedia
       - POSTGRES_PASSWORD=password

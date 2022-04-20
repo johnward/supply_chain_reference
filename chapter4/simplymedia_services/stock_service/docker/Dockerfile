@@ -1,7 +1,7 @@
 FROM rust:1.56 as project_builder
 
-RUN USER=root cargo new --bin order_service
-WORKDIR ./order_service
+RUN USER=root cargo new --bin stock_service
+WORKDIR ./stock_service
 COPY ./Cargo.toml ./Cargo.toml
 RUN cargo build --release
 RUN rm src/*.rs
@@ -9,7 +9,7 @@ RUN rm src/*.rs
 # Copy the project into the container to build
 ADD . ./
 
-RUN rm ./target/release/deps/order_service*
+RUN rm ./target/release/deps/stock_service*
 RUN cargo build --release
 
 
@@ -36,16 +36,16 @@ RUN groupadd $APP_USER \
     && useradd -g $APP_USER $APP_USER \
     && mkdir -p ${APP}
 
-COPY --from=project_builder /order_service/target/release/order_service ${APP}/order_service
+COPY --from=project_builder /stock_service/target/release/stock_service ${APP}/stock_service
 
 RUN chown -R $APP_USER:$APP_USER ${APP}
 
 COPY settings.toml ${APP}/settings.toml
 
 ENV RUST_BACKTRACE=full
-ENV DATABASE_URL=postgres://username:password@database/orders_db
+ENV DATABASE_URL=postgres://username:password@database/stocks_db
 
 USER $APP_USER
 WORKDIR ${APP}
 
-CMD ["./order_service"]
+CMD ["./stock_service"]

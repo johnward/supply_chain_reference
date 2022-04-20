@@ -3,4 +3,7 @@
 members = [
 	"monolith_service",
 	"order_service",
+	"stock_service",
+	"product_service",
+	"fulfillment_service",
 ]
