@@ -28,7 +28,7 @@ services:
       context: ./product_service/
       dockerfile: ./docker/Dockerfile
     ports:
-      - "8083:8081"
+      - "8084:8081"
   database:
     container_name: 'simply_media_container'
     image: postgres:11.2

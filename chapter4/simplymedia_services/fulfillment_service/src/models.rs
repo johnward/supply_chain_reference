@@ -45,7 +45,7 @@ pub struct OrderLine {
     pub amount: i32,
 }
 
-#[derive(Insertable, Associations)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct NewOrderLine {
     pub order_id: i32,
     pub product_name: String,

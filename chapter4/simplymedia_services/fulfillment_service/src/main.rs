@@ -2,6 +2,7 @@
 extern crate dotenv;
 
 mod api;
+mod models;
 mod services;
 mod web_service;
 

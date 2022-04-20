@@ -1,6 +1,7 @@
 use crate::models::{Order, Stock};
 use crate::services::{create_error, ServiceError, ServiceErrorTypes};
 use chrono::{DateTime, Duration, Utc};
+use futures::executor::block_on;
 use hyper::{Body, Client, Method, Request, Uri};
 use std::error;
 
@@ -38,12 +39,16 @@ fn request_delievery(order: Order) {}
 
 fn item_picked(order: Order) {}
 
-fn has_order_been_delivered() -> Result<Order, ServiceError> {
-    Ok(())
+// fn has_order_been_delivered() -> Result<Order, ServiceError> {
+//     Ok(())
+// }
+
+fn get_orders(id: i32) -> Result<Vec<Order>, ServiceError> {
+    Ok(get_orders_async(id))
 }
 
 #[tokio::main]
-async fn get_orders(id: i32) -> Result<Vec<Order>, ServiceError> {
+async fn get_orders_async(id: i32) -> Result<Vec<Order>, ServiceError> {
     let req = Request::builder()
         .method(Method::GET)
         .uri("http://localhost:8082/order/list")
@@ -62,8 +67,12 @@ async fn get_orders(id: i32) -> Result<Vec<Order>, ServiceError> {
     Ok(orders)
 }
 
+fn get_stock(id: i32) -> Result<Vec<Stock>, ServiceError> {
+    Ok(get_stock_async(id))
+}
+
 #[tokio::main]
-async fn get_stock(id: i32) -> Result<Vec<Stock>, ServiceError> {
+async fn get_stock_async(id: i32) -> Result<Vec<Stock>, Box<dyn std::error::Error + Send + Sync>> {
     let req = Request::builder()
         .method(Method::GET)
         .uri("http://localhost:8082/order/list")
@@ -82,6 +91,7 @@ async fn get_stock(id: i32) -> Result<Vec<Stock>, ServiceError> {
     Ok(stocks)
 }
 
+#[tokio::main]
 async fn fulfill_order(id: i32) -> Result<Order, ServiceError> {
     Ok(Order {
         id: 32,
@@ -91,7 +101,12 @@ async fn fulfill_order(id: i32) -> Result<Order, ServiceError> {
     })
 }
 
-async fn increment_stock(id: i32, _amount: i32) -> Result<Stock, ServiceError> {
+fn increment_stock(id: i32, amount: i32) -> Result<Stock, ServiceError> {
+    Ok(increment_stock_async(id, amount))
+}
+
+#[tokio::main]
+async fn increment_stock_async(id: i32, _amount: i32) -> Result<Stock, ServiceError> {
     Ok(Stock {
         id: 1,
         product_name: String::from("Harry Potter 2"),
