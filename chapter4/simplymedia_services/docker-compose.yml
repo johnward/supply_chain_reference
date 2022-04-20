@@ -30,7 +30,7 @@ services:
     ports:
       - "8084:8081"
   database:
-    container_name: 'simply_media_container'
+    container_name: 'simply_media_database'
     image: postgres:11.2
     volumes:
         - ./docker-postgresql-multiple-databases:/docker-entrypoint-initdb.d
