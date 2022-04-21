@@ -1,1 +1,3 @@
-# rust_book_examples for the book Production Microservice in Rust
+# Supply Chain Refereence 
+
+This repository for a referecen project for a Supply Chain solution in Rust
