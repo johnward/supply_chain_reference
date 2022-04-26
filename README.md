@@ -38,9 +38,11 @@ $ cd microservices/suschain_services
 In each of the services you will need to set up your Diesel run database:
 
 In this suschain_services folder, to get the database up:
+
 $ docker-compose up database
 
 Then in each sub folder type:
+
 $ diesel setup
 $ diesel migration run
 
@@ -50,6 +52,7 @@ That should create the releavat database table in your running postgres containe
 Now move back to the root suschain_services folder (microservices/suschain_services)
 
 And type:
+
 $ cargo build
 $ docker-compose up
 
