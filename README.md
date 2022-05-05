@@ -1,6 +1,6 @@
 # Supply Chain Reference
 
-This repository for a referecen project for a Supply Chain solution in Rust
+This repository for a reference project for a Supply Chain solution in Rust
 
 # Overview
 This section provides a detailed overview of the folder structure
