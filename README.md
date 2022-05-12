@@ -1,6 +1,6 @@
 # Supply Chain Reference
 
-This repository for a reference project for a Supply Chain solution in Rust
+This repository for a reference project for a Supply Chain solution in Rust, the aim of this repo is to provide a basic implementation of a supply chain solution in Microservices.
 
 # Overview
 This section provides a detailed overview of the folder structure
